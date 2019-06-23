@@ -3,7 +3,8 @@ class SpaceShip{
 		this.id=id
 		this.address=[...address]
 		this.pilot=null
-    this.fuel = 100
+		this.fuel = 1000
+		this.fuelMax = 1000
 	}
 	enter(player){
 		this.pilot=player.id

@@ -2,6 +2,7 @@ class Player{
 	constructor(id,address){
 		this.id=id
 		this.address=[...address]
-    this.vehicle = null
+		this.vehicle = null
+		this.planetDistance = 0
 	}
 }

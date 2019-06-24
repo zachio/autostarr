@@ -35,38 +35,18 @@ class Location {
   }
 }
 
-
-function setupCanvas(canvas) {
-  // Get the device pixel ratio, falling back to 1.
-  var dpr = window.devicePixelRatio || 1;
-  // Get the size of the canvas in CSS pixels.
-  var rect = canvas.getBoundingClientRect();
-  // Give the canvas pixel dimensions of their CSS
-  // size * the device pixel ratio.
-  canvas.width = rect.width * dpr;
-  canvas.height = rect.height * dpr;
-  var ctx = canvas.getContext('2d');
-  // Scale all drawing operations by the dpr, so you
-  // don't have to worry about the difference.
-  ctx.scale(dpr, dpr);
-  return ctx;
-}
-
 var json = []
-
 var starsystem =      new StarSystem(0)
 var player =          new Player(0, starsystem.address)
 var spaceship =       new SpaceShip(0, starsystem.address)
 var loader =          document.getElementById("loader")
 var jumbotron =       document.getElementById("jumbotron")
-// var canvas =          setupCanvas(jumbotron)
 var jumbotronTitle =  document.getElementById("jumbo-title")
 var jumboText =       document.getElementById("jumbo-text")
 var scanner =         document.getElementById("scanner")
 var cards =           document.getElementById("cards")
 var fuelLevel =       document.getElementById("fuel-level")
 var planets =         []
-var planetButtons =   []
 scanner.addEventListener("click", function(){
   console.log("Scanning...")
   if(starsystem.planetTotal && starsystem.scanned === false) {
@@ -76,15 +56,28 @@ scanner.addEventListener("click", function(){
     for(var i=0;i<starsystem.planetTotal;i++) {
       let planet = new Planet(starsystem.id, i)
       planets.push(planet)
-      let card = "<div class=\"col-lg-3 col-md-6 mb-4\"><div class=\"card h-100\"><img class=\"card-img-top\" src=\"img/planet.jpg\" alt=\"Card image cap\"><div class=\"card-body\"><h4 class=\"card-title\">Planet "+planet.name+"</h4><p class=\"card-text\">The planet "+planet.name+" has "+planet.moons+" moons and has "+planet.size+" areas to explore and is "+planet.starDistance+" distance from it's host star.</p></div><div class=\"card-footer\"><button class=\"btn btn-primary\" id=\"planet"+i+"\" data-planet-id=\""+planet.id+"\">Orbit</button></div></div></div>"
-      cards.innerHTML += card
-    }
-    //Planets
-    for(var i = 0; i < starsystem.planetTotal; i++) {
-      planetButtons.push(document.getElementById("planet"+i))
-      //Orbit planet
-      planetButtons[i].addEventListener("click", function(event){
-        starsystem.scanned = false
+      let col = document.createElement("div")
+      col.className = "col-lg-3 col-md-6 mb-4"
+      let card = document.createElement("div")
+      card.className = "card h-100"
+      let img = new Image()
+      img.src = "img/planet.jpg"
+      img.className = "card-img-top"
+      let cardBody = document.createElement("div")
+      cardBody.className = "card-body"
+      let h4 = document.createElement("h4")
+      h4.className = "card-title"
+      h4.innerHTML = planet.name + " Planet"
+      let p = document.createElement("p")
+      p.className = "card-text"
+      p.innerHTML = "The planet "+planet.name+" has "+planet.moons+" moons and has "+planet.size+" areas to explore and is "+Math.abs(planet.starDistance - player.starDistance)+" distance from you."
+      let footer = document.createElement("div")
+      footer.className = "card-footer"
+      let orbitButton = document.createElement("button")
+      orbitButton.className = "btn btn-primary"
+      orbitButton.setAttribute("data-planet-id", i)
+      orbitButton.innerHTML = "Orbit"
+      orbitButton.addEventListener("click", function(){
         let planetID = event.target.getAttribute("data-planet-id")
         let planet = planets[planetID]
         let travelDistance = Math.abs(planet.starDistance - player.starDistance)
@@ -95,28 +88,34 @@ scanner.addEventListener("click", function(){
           player.starDistance = planet.starDistance
           player.address = planet.address
           spaceship.address = planet.address
-          // let planetImg = new Image()
-          // planetImg.src = "img/planet.jpg"
           jumbotron.src = "img/planet.jpg"
-          //clear canvas
-          // canvas.clearRect(0,0,jumbotron.width,jumbotron.height)
-          //draw planet image on canvas
-          // canvas.drawImage(planetImg,0,0)
           jumbotronTitle.innerHTML = planet.name
           jumboText.innerHTML = "You traveled "+travelDistance+" distance and are orbiting the planet " + planet.name + " with " + planet.moons + " moons. This planet orbits " + planet.starDistance + " distance from it's host star."
-          console.log(planet)
-          window.scrollTo(0,0)
-        } else {
-          console.error("Not enough fuel")
-        }
-      })
+      } else {
+        console.error("Not enough fuel")
+      }})
+      cardBody.appendChild(h4)
+      cardBody.appendChild(p)
+      footer.appendChild(orbitButton)
+      card.appendChild(img)
+      card.appendChild(cardBody)
+      card.appendChild(footer)
+      col.appendChild(card)
+      cards.appendChild(col)
+      // let card = "<div class=\"col-lg-3 col-md-6 mb-4\"><div class=\"card h-100\"><img class=\"card-img-top\" src=\"img/planet.jpg\" alt=\"Card image cap\"><div class=\"card-body\"><h4 class=\"card-title\">Planet "+planet.name+"</h4><p class=\"card-text\">The planet "+planet.name+" has "+planet.moons+" moons and has "+planet.size+" areas to explore and is "+planet.starDistance+" distance from it's host star.</p></div><div class=\"card-footer\"><button class=\"btn btn-primary\" id=\"planet"+i+"\" data-planet-id=\""+planet.id+"\">Orbit</button></div></div></div>"
+      // cards.innerHTML += card
     }
+
     //Star Card
     let col = document.createElement("div")
     col.className = "col-lg-3 col-md-6 mb-4"
+    let card = document.createElement("div")
+    card.className = "card h-100"
     let image = new Image()
     image.src = "img/sun.jpg"
     image.className = "card-img-top"
+    let cardBody = document.createElement("div")
+    cardBody.className = "card-body"
     let h4 = document.createElement("h4")
     h4.innerHTML = starsystem.name + " Star"
     let p = document.createElement("p")
@@ -143,10 +142,6 @@ scanner.addEventListener("click", function(){
         spaceship.address = planet.address
         let planetImg = new Image()
         planetImg.src = "img/planet.jpg"
-        //clear canvas
-        canvas.clearRect(0,0,jumbotron.width,jumbotron.height)
-        //draw planet image on canvas
-        canvas.drawImage(planetImg,0,0)
         jumbotronTitle.innerHTML = planet.name
         jumboText.innerHTML = "You traveled "+travelDistance+" distance and are orbiting the planet " + planet.name + " with " + planet.moons + " moons. This planet orbits " + planet.starDistance + " distance from it's host star."
         console.log(planet)
@@ -156,10 +151,12 @@ scanner.addEventListener("click", function(){
       }
     })
     footer.appendChild(orbitButton)
-    col.appendChild(image)
-    col.appendChild(h4)
-    col.appendChild(p)
-    col.appendChild(footer)
+    card.appendChild(image)
+    cardBody.appendChild(h4)
+    cardBody.appendChild(p)
+    card.appendChild(cardBody)
+    card.appendChild(footer)
+    col.appendChild(card)
     
     // let card = "<div class=\"col-lg-3 col-md-6 mb-4\"><div class=\"card h-100\"><img class=\"card-img-top\" src=\"img/planet.jpg\" alt=\"Card image cap\"><div class=\"card-body\"><h4 class=\"card-title\">Star "+starsystem.name+"</h4><p class=\"card-text\">The "+starsystem.name+" star system.</p></div><div class=\"card-footer\"><button class=\"btn btn-primary\" id=\"star"+starsystem.id+"\" data-star-id=\""+starsystem.id+"\">Orbit</button></div></div></div>"
     cards.appendChild(col)

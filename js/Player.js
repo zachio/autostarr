@@ -3,6 +3,6 @@ class Player{
 		this.id=id
 		this.address=[...address]
 		this.vehicle = null
-		this.planetDistance = 0
+		this.starDistance = 0
 	}
 }

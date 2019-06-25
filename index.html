@@ -84,7 +84,7 @@
               <p class="card-text">The star {{starsystem.name}} has {{starsystem.planetTotal}} planet{{starsystem.planetTotal == 1 ? "" : "s"}}.</p>
             </div>
             <div class="card-footer">
-              <button class="btn btn-primary" @click="setOrbit(-1)">Orbit</button>
+              <button class="btn btn-primary" @click="setOrbit(-1)" :disabled="currentOrbit == -1">Orbit</button>
             </div>
           </div>
         </div>
@@ -96,7 +96,7 @@
               <p class="card-text">The planet {{planet.name}} has {{planet.moons}} moon{{planet.moons == 1 ? "" : "s"}} and has {{planet.size}} areas to explore and is {{planet.starDistance}} distance from you.</p>
             </div>
             <div class="card-footer">
-              <button class="btn btn-primary" @click="setOrbit(planet.id)">Orbit</button>
+              <button class="btn btn-primary" @click="setOrbit(planet.id)" :disabled="planet.id == currentOrbit">Orbit</button>
             </div>
           </div>
         </div>

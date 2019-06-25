@@ -55,6 +55,7 @@ var app = new Vue({
   },
   methods: {
     setOrbit: function(orbit_level){
+      if (orbit_level == this.currentOrbit) return
       let tmpDistance = 0;
       if (orbit_level >= 0){
         tmpDistance = this.starsystem.planets[orbit_level].starDistance

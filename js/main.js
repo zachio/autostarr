@@ -36,7 +36,7 @@ class Location {
 }
 
 var json = []
-var app =             new Vue({
+var app = new Vue({
   el: "#app",
   data: {
     isLoading : false,

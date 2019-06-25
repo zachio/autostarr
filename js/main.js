@@ -39,8 +39,7 @@ var json = []
 var app = new Vue({
   el: "#app",
   data: {
-    isLoading : false,
-    fuelLevel : 100,    
+    isLoading : false,  
     loadingImage   : "./img/loading.gif",
     structureImage : "./img/sun.jpg",
     structureDescription : null,
@@ -56,10 +55,12 @@ var app = new Vue({
   },
   methods: {
     setOrbit: function(orbit_level){
-      /*if (this.fuelLevel < fuel_logic_goes_here){
-        return;
-      }*/
-      this.fuelLevel -= 10; //do actual calc here
+      let tmpDistance = 0;
+      if (orbit_level >= 0){
+        tmpDistance = this.starsystem.planets[orbit_level].starDistance
+      }
+      let travelDistance = Math.abs(this.player.starDistance - tmpDistance)
+      this.spaceship.fuel = Math.max(0, this.spaceship.fuel - travelDistance); //do actual calc here
       this.currentOrbit = orbit_level;
     },
     scan: function(event){

@@ -7,6 +7,8 @@ class StarSystem{
 		this.color = this.pickColor()
 		this.planetTotal = Math.between(3,10,this.seed++)
     this.scanned = false
+    this.description = this.jumbotext()
+    this.image = "img/sun.jpg"
 	}
 	
 	nameStar(){

@@ -13,7 +13,8 @@ class Planet{
 		this.name = this.namePlanet()
 		this.moons = Math.between(0,10,this.seed++)
 		this.size = Math.between(50,100,this.seed++)
-    this.starDistance = Math.between(id*200,id*200+200,this.seed++)
+		this.starDistance = Math.between(id*200,id*200+200,this.seed++)
+		this.image = "img/planet.jpg"
 		
 		return this
 	}

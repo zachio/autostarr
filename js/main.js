@@ -62,6 +62,7 @@ var app = new Vue({
       let travelDistance = Math.abs(this.player.starDistance - tmpDistance)
       if (this.consumeFuel(travelDistance)){
         this.currentOrbit = orbit_level;
+        this.player.starDistance = tmpDistance;
       }
     },
     consumeFuel: function(fuel_val){

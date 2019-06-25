@@ -60,8 +60,15 @@ var app = new Vue({
         tmpDistance = this.starsystem.planets[orbit_level].starDistance
       }
       let travelDistance = Math.abs(this.player.starDistance - tmpDistance)
-      this.spaceship.fuel = Math.max(0, this.spaceship.fuel - travelDistance); //do actual calc here
-      this.currentOrbit = orbit_level;
+      if (this.consumeFuel(travelDistance)){
+        this.currentOrbit = orbit_level;
+      }
+    },
+    consumeFuel: function(fuel_val){
+      let tmpFuel = this.spaceship.fuel - fuel_val
+      if (tmpFuel < 0) return false;
+      this.spaceship.fuel = Math.max(0, tmpFuel); //do actual calc here
+      return true;
     },
     scan: function(event){
       console.log("Scanning...")

@@ -15,6 +15,7 @@ class Planet{
 		this.size = Math.between(50,100,this.seed++)
 		this.starDistance = Math.between(id*200,id*200+200,this.seed++)
 		this.image = "img/planet.jpg"
+		this.scanned = false
 		
 		return this
 	}

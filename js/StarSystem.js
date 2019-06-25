@@ -5,7 +5,8 @@ class StarSystem{
     this.seed = id
 		this.name = this.nameStar()
 		this.color = this.pickColor()
-		this.planetTotal = Math.between(3,10,this.seed++)
+    this.planetTotal = Math.between(3,10,this.seed++)
+    this.planets = []
     this.scanned = false
     this.description = this.jumbotext()
     this.image = "img/sun.jpg"

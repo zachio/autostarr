@@ -75,19 +75,19 @@
             <img :src="starsystem.image" class="card-img-top">
             <div class="card-body">
               <h4 class="card-title">{{starsystem.name}}</h4>
-              <p class="card-text">The star {{starsystem.title}} has {{starsystem.planetTotal}} planets.</p>
+              <p class="card-text">The star {{starsystem.name}} has {{starsystem.planetTotal}} planets.</p>
             </div>
             <div class="card-footer">
               <button class="btn btn-primary" :data-starsystem-id="starsystem.id" @click="setOrbit(starsystem.id)">Orbit</button>
             </div>
           </div>
         </div>
-        <div v-if="planet.scanned" v-for="planet in planets" class="col-lg-3 col-md-6 mb-4">
+        <div v-if="planet.scanned" v-for="planet in starsystem.planets" class="col-lg-3 col-md-6 mb-4">
           <div class="card h-100" :class="[ planet.id == currentOrbit ? 'border-primary' : '']">
             <img :src="planet.image" class="card-img-top">
             <div class="card-body">
-              <h4 class="card-title">{{planet.title}}</h4>
-              <p class="card-text">The planet {{planet.title}} has {{planet.moons.length}} moons and has {{planet.size}} areas to explore and is {{planet.starDistance}} distance from you.</p>
+              <h4 class="card-title">{{planet.name}}</h4>
+              <p class="card-text">The planet {{planet.name}} has {{planet.moons}} moons and has {{planet.size}} areas to explore and is {{planet.starDistance}} distance from you.</p>
             </div>
             <div class="card-footer">
               <button class="btn btn-primary" :data-planet-id="planet.id" @click="setOrbit(planet.id)">Orbit</button>

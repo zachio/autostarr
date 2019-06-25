@@ -64,10 +64,12 @@ var app =             new Vue({
     },
     scan: function(event){
       console.log("Scanning...")
-      
+      this.starsystem.planets = [];
+      for(var i=0; i < this.starsystem.planetTotal; i++) {
+        let planet = new Planet(this.starsystem.id, i)
+        planet.scanned = true
+        this.starsystem.planets.push(planet)
+      }
     }
   }
 })
-var cards =           document.getElementById("cards")
-
-var planets =         []

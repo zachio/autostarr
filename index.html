@@ -72,14 +72,14 @@
       <!-- Page Features -->
       <div class="row text-center" id="cards">
         <div class="col-lg-3 col-md-6 mb-4">
-          <div class="card h-100">
+          <div class="card h-100" :class="[ currentOrbit == -1 ? 'border-primary' : '']">
             <img :src="starsystem.image" class="card-img-top">
             <div class="card-body">
               <h4 class="card-title">{{starsystem.name}}</h4>
               <p class="card-text">The star {{starsystem.name}} has {{starsystem.planetTotal}} planet{{starsystem.planetTotal == 1 ? "" : "s"}}.</p>
             </div>
             <div class="card-footer">
-              <button class="btn btn-primary" :data-starsystem-id="starsystem.id" @click="setOrbit(starsystem.id)">Orbit</button>
+              <button class="btn btn-primary" @click="setOrbit(-1)">Orbit</button>
             </div>
           </div>
         </div>
@@ -91,7 +91,7 @@
               <p class="card-text">The planet {{planet.name}} has {{planet.moons}} moon{{planet.moons == 1 ? "" : "s"}} and has {{planet.size}} areas to explore and is {{planet.starDistance}} distance from you.</p>
             </div>
             <div class="card-footer">
-              <button class="btn btn-primary" :data-planet-id="planet.id" @click="setOrbit(planet.id)">Orbit</button>
+              <button class="btn btn-primary" @click="setOrbit(planet.id)">Orbit</button>
             </div>
           </div>
         </div>

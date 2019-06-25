@@ -44,7 +44,7 @@ var app =             new Vue({
     loadingImage   : "./img/loading.gif",
     structureImage : "./img/sun.jpg",
     structureDescription : null,
-    currentOrbit : 0,
+    currentOrbit : -1, // -1 is the star
     starsystem   : null,
     player       : null,
     spaceship    : null,

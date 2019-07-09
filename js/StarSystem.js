@@ -1,23 +1,31 @@
-class StarSystem{
+class StarSystem {
 	constructor (id){
 		this.id = id
 		this.address=[id]
     this.seed = id
 		this.name = this.nameStar()
 		this.color = this.pickColor()
-    this.planetTotal = Math.between(3,10,this.seed++)
+    this.planetTotal = Math.between(1,5,this.seed++)
     this.planets = []
     this.scanned = false
     this.description = this.jumbotext()
     this.image = "img/sun.jpg"
+    this.alert = {
+      type: null,
+      message: null
+    }
+    for(var i=0; i < this.planetTotal; i++) {
+      let planet = new Planet([this.id, i])
+      this.planets.push(planet)
+    }
 	}
 	
 	nameStar(){
 		let name=""
-		let syllabols=Math.between(2 ,5, this.seed++)
-		let sounds = ["fo","ler","kep","bo","pi","th",]
-		for(let i=0;i<syllabols;i++){
-			name+=sounds[Math.between(0,sounds.length,this.seed++)]
+		let syllabolCount=Math.between(2 ,5, this.seed++)
+		let syllabols = ["fo","ler","kep","bo","pi","the","thi","ph","ad"]
+		for(let i=0;i<syllabolCount;i++){
+			name+=syllabols[Math.between(0,syllabols.length,this.seed++)]
 		}
 			return name.charAt(0).toUpperCase()+name.slice(1)
 	}

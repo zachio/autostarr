@@ -1,17 +1,31 @@
 class Area{
-	constructor(starid, planetid, id){
-
+	constructor(address){
+    let starid = address[0]
+    let planetid = address[1]
+    let areaid = address[2]
 		let planet = new Planet(starid,planetid)
-		if(planet == null || id < 0 || id > planet.size){
-			console.log(null)
+		if(planet == null || areaid < 0 || areaid > planet.size){
+			console.error("Area does not exit!")
 			return null
 		}
-		this.id = id
-		this.starid = starid
-		this.planetid = planetid
-		this.address = [starid,planetid,id]
-		this.resources = []
-		this.seed = starid * 10 + planetid * 100 + id
+		this.id = areaid
+		this.address = address
+		this.anomolies = []
+		this.seed = starid * 10 + planetid * 100 + areaid
+		let images = ["img/planet.1.groundlevel.png", "img/380_max.jpg"]
+		this.image = images[Math.between(0, images.length, this.seed++)]
+    if(areaid === 0) {
+      this.image = "img/spaceship-landed.jpg"
+    }
+		this.scanned = false
+		this.scannedPercent = 0
+		this.title = `Unknown Area`
+		this.description = `You entered an unknown area`
+		let carbon = Math.between(0,100, this.seed++)
+		this.carbon = {
+		    max: carbon,
+		    amount: carbon
+		}
 		return this
 	}
 	removeResource(id){

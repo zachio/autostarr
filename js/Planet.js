@@ -1,22 +1,29 @@
-class Planet{
-	constructor(starid, id){
-		this.id = id
-		let star=new StarSystem(starid)
-		if(id <0 || id >star.planetTotal){
-			console.log(null)
-			return null
-		}
-		this.starid=starid
-		this.address=[starid,id]
-		this.seed=starid*10+id
+class Planet {
+	constructor(address) {
+	  let starId = address[0]
+	  let planetId = address[1]
+		this.id = planetId
+		this.address=[starId, planetId]
+		this.seed=starId*10+planetId
 		this.color = this.pickColor()
 		this.name = this.namePlanet()
 		this.moons = Math.between(0,10,this.seed++)
 		this.size = Math.between(50,100,this.seed++)
-		this.starDistance = Math.between(id*200,id*200+200,this.seed++)
+    let gap = 10000
+		this.starDistance = Math.between(planetId*gap,planetId*gap+gap,this.seed++)
 		this.image = "img/planet.jpg"
 		this.scanned = false
-		
+		this.alert = {
+			type: "alert-info",
+			message: null
+		},
+		this.title = `Planet ${this.name}`
+		this.description = `${this.name} is a ${this.color} planet and has ${this.size} areas to explore. It has ${this.moons} moons and is ${this.starDistance} distance units from it's host star.`
+		this.areas = []
+		for(var i = 0; i < this.size; i++){
+		  let areaId = i
+		  this.areas.push(new Area([starId, planetId, areaId]))
+		}
 		return this
 	}
 	

@@ -4,7 +4,7 @@ var app = new Vue({
   data: {
     isLoading : true,  
     loadingImage   : "./img/loading.gif",
-    currentOrbit : 0, 
+    currentOrbit : null, 
     starsystem   : null,
     player       : null,
     spaceship    : null,
@@ -27,7 +27,7 @@ var app = new Vue({
       type: "alert-info",
       message: null
     },
-    targetPlanet: 0,
+    targetPlanet: null,
     area: null,
     miningCarbon: false,
     scanner: {
@@ -40,22 +40,23 @@ var app = new Vue({
   created: function() {
     //Initialize game
     let starId = 3
-    let planetId = 0
-    let areaId = 0
     this.starsystem = new StarSystem(starId)
+    let planetId = Math.floor((Math.random() * this.starsystem.planetTotal))
     this.planet = this.starsystem.planets[planetId]
+    this.targetPlanet = planetId
+    this.currentOrbit = planetId
+    let areaId = Math.floor((Math.random() * this.planet.size - 1))
     this.area = this.planet.areas[areaId]
     this.player     = new Player(1, [starId, planetId, areaId])
-    this.spaceship  = new SpaceShip(1, this.player.address)
+    this.spaceship  = new SpaceShip(1, [starId, planetId, areaId])
     this.spaceship.travel.targetPlanet = this.planet
     this.player.starDistance = this.planet.starDistance
     var self = this
     //preload images
     var jumboImg = new Image()
     jumboImg.src = "img/spaceship-landed.jpg"
-    this.area.image = jumboImg.src
     var spaceshipInterior = new Image()
-    spaceshipInterior.src = "img/spaceship-interior.2.jpg"
+    spaceshipInterior.src = "img/spaceship-interior.3.gif"
     var warp = new Image()
     warp.src = "img/warp.gif"
     new Image().src = "img/atmosphere-entry.gif"
@@ -98,16 +99,24 @@ var app = new Vue({
         this.progressBar.title = `Initializing launch...`
         var self = this
         let callback = function(){
-          self.setAlert("alert-success", `You successfully entered ${self.planet.name}'s orbit.`)
+          
           self.spaceship.isMoving = false
           self.player.isLanded = false
           self.player.isOrbiting = true
           self.spaceship.isOrbiting = true
           self.player.address.pop()
-          self.spaceship.address = self.player.address
+          self.spaceship.address = [self.starsystem.id, self.planet.id]
           self.jumbotron.image = self.planet.image
-          self.jumbotron.title = `Orbiting ${self.planet.title}`
-          self.jumbotron.description = self.planet.description
+          if(!self.planet.scanned) {
+            self.setAlert("alert-success", `You successfully entered an unknown planets orbit.`)
+            self.jumbotron.title = `Orbiting Unknown Planet`
+            self.jumbotron.description = `Scan the planet to collect data about the planet and discover other planets as well.`
+          } else {
+            self.setAlert("alert-success", `You successfully entered ${self.planet.name}'s orbit.`)
+            self.jumbotron.title = `Orbiting ${self.planet.title}`
+            self.jumbotron.description = self.planet.description
+          }
+          
         }
         var start = Date.now()
         this.spaceship.travel.distance = 5000
@@ -138,7 +147,41 @@ var app = new Vue({
       } else {
         this.setAlert("alert-warning", `Not enough fuel for launch!`)
       }
-      
+    },
+    land: function(planet) {
+      this.spaceship.isMoving = true
+      this.player.isOrbiting = false
+      this.spaceship.isOrbiting = false
+      let areaId = Math.floor((Math.random() * this.planet.size - 1))
+      this.player.address.push(areaId)
+      this.spaceship.address.push(areaId)
+      this.area = this.planet.areas[areaId]
+      this.setAlert("alert-info",`Initializing landing procedure...`)
+      this.jumbotron.image = "img/atmosphere-entry.gif"
+      var self = this
+      let callback = function(){
+        self.spaceship.isMoving = false
+        self.spaceship.isOrbiting = false
+        self.player.isOrbiting = false
+        self.player.isLanded = true
+        self.setAlert("alert-success",`Planetary landing successful.`)
+        self.jumbotron.image = "img/spaceship-interior.3.gif"
+        self.jumbotron.title = `Spaceship Interior`
+        self.jumbotron.description = `${self.planet.name} Planetary landing was successfully`
+      }
+      var start = Date.now()
+      var duration = 5000
+      var tick = function(){
+        let progress = Date.now() - start
+        if(progress < duration) {
+          self.progressBar.percent = (progress / duration) * 100 
+          requestAnimationFrame(tick)
+        } else {
+          callback()
+          self.progressBar.percent = 0
+        } 
+      }
+      requestAnimationFrame(tick)
     },
     travel: function(planetId) {
       var player = this.player
@@ -218,42 +261,10 @@ var app = new Vue({
           self.starsystem.planets[i++].scanned = true
           self.scanner.percent, 
           self.progressBar.percent = (i / planetCount) * 100
+          self.jumbotron.title = `Orbiting ${self.planet.name}`
+          self.jumbotron.description = self.planet.description
         }
       },500)    
-    },
-    land: function(planet) {
-      this.spaceship.isMoving = true
-      this.player.isOrbiting = false
-      this.spaceship.isOrbiting = false
-      this.player.address.push(0)
-      this.spaceship.address.push(0)
-      this.area = this.planet.areas[0]
-      this.setAlert("alert-info",`Initializing landing procedure...`)
-      this.jumbotron.image = "img/atmosphere-entry.gif"
-      var self = this
-      let callback = function(){
-        self.spaceship.isMoving = false
-        self.spaceship.isOrbiting = false
-        self.player.isOrbiting = false
-        self.player.isLanded = true
-        self.setAlert("alert-info",`Planetary landing successful.`)
-        self.jumbotron.image = "img/spaceship-interior.2.jpg"
-        self.jumbotron.title = `Spaceship Interior`
-        self.jumbotron.description = `${self.planet.name} Planetary landing was successfully`
-      }
-      var start = Date.now()
-      var duration = 5000
-      var tick = function(){
-        let progress = Date.now() - start
-        if(progress < duration) {
-          self.progressBar.percent = (progress / duration) * 100 
-          requestAnimationFrame(tick)
-        } else {
-          callback()
-          self.progressBar.percent = 0
-        } 
-      }
-      requestAnimationFrame(tick)
     },
     progressAnimation: function(duration, update = null, callback = null) {
       var self = this
@@ -336,10 +347,14 @@ var app = new Vue({
       if(targetArea >= planet.areas.length) {
         targetArea = 0
       }
-      
+      player.address[2] = targetArea
       var callback = function() {
         self.area = planet.areas[targetArea]
-        self.jumbotron.image = self.area.image
+        if(targetArea === self.spaceship.address[2]) {
+          self.jumbotron.image = "img/spaceship-landed.jpg"
+        } else {
+          self.jumbotron.image = self.area.image
+        }
         self.jumbotron.title = self.area.title
         self.jumbotron.description = self.area.description
         if(!self.area.discovered) {
@@ -386,7 +401,7 @@ var app = new Vue({
           self.player.ship = self.spaceship.id
           self.spaceship.progress.enter = 0
           
-          self.jumbotron.image = "img/spaceship-interior.2.jpg"
+          self.jumbotron.image = "img/spaceship-interior.3.gif"
           self.progressBar.percent = 0
           self.jumbotron.title = `Spaceship Interior`
           if(self.player.energy.amount < self.player.energy.max) {
@@ -418,7 +433,7 @@ var app = new Vue({
           self.spaceship.progress.exit = 0
           self.progressBar.percent = 0
           self.setAlert("alert-success",`You exited the ship.`)
-          self.jumbotron.image = self.area.image
+          self.jumbotron.image = "img/spaceship-landed.jpg"
           self.jumbotron.title = self.area.title
           self.jumbotron.description = self.area.description
         } 
@@ -429,11 +444,9 @@ var app = new Vue({
       this.spaceship.active = "active"
     },
     startMiningCarbon: function(){
-        console.log("started mining")
       this.miningCarbon = true
     },
     stopMiningCarbon: function(){
-        console.log("stopped mining")
       this.miningCarbon = false
     },
     mineCarbon: function(){

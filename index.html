@@ -70,14 +70,15 @@
                   <div class="col">
                     <div class="list-group mb-2" v-if="!isLoading">
                       <button class="list-group-item list-group-item-action" v-on:click="scanArea()" v-if="player.isLanded && !player.ship && !player.isMoving" :disable="isGameover"><i class="fas fa-search"></i>  Scan Area</button>
-                      <button class="list-group-item list-group-item-action" @click="enterSpaceship()" v-if="!player.ship && area.id === spaceship.area && !player.isMoving" :disabled="player.isMoving || player.isScanning || isGameover"><i class="fas fa-door-open"></i> Board Spacecraft</button>
+                      <button class="list-group-item list-group-item-action" @click="enterSpaceship()" v-if="!player.ship && spaceship.address[2] === player.address[2] && !player.isMoving" :disabled="player.isMoving || player.isScanning || isGameover"><i class="fas fa-door-open"></i> Board Spacecraft</button>
                       <button class="list-group-item list-group-item-action" @click="craftFuel()" v-if="player.ship"><i class="fas fa-fill-drip"></i> Craft Fuel</button>
+<!--                       <button class="list-group-item list-group-item-action" @click="craftTruck()" v-if="spaceship.address[2] === player.address[2]"><i class="fas fa-truck-pickup"></i> Craft Rover</button> -->
                       <button class="list-group-item list-group-item-action" @click="scan()" v-if="player.isOrbiting && !spaceship.isMoving" :disabled="spaceship.isMoving || player.isScanning || isGameover"><i class="fas fa-search"></i> Scan for planets</button>
                       <button class="list-group-item list-group-item-action" @click="travel(targetPlanet)" v-if="player.isOrbiting && targetPlanet != currentOrbit" :disable="spaceship.isMoving || isGameover">
                         <i class="fas fa-rocket"></i> Travel to Planet <span class="badge badge-warning">{{Math.abs((starsystem.planets[targetPlanet].starDistance - player.starDistance)/1000).toFixed(1)}} <i class="fas fa-gas-pump"></i></span>
                       </button>
-                      <button class="list-group-item list-group-item-action" @click="exitSpaceship()" v-if="player.ship && area.id === spaceship.area && player.isLanded" :disabled="player.isMoving || player.isScanning || isGameover"><i class="fas fa-door-open"></i> Exit Ship</button>
-                      <button class="list-group-item list-group-item-action" @click="launch()" v-if="area.id === 0 && player.ship && player.isLanded" :disabled="player.isMoving || player.isScanning"><i class="fas fa-rocket"></i> Launch</button>
+                      <button class="list-group-item list-group-item-action" @click="exitSpaceship()" v-if="player.ship && spaceship.address[2] === player.address[2] && player.isLanded" :disabled="player.isMoving || player.isScanning || isGameover"><i class="fas fa-door-open"></i> Exit Ship</button>
+                      <button class="list-group-item list-group-item-action" @click="launch()" v-if="spaceship.address[2] === player.address[2] && player.ship && player.isLanded" :disabled="player.isMoving || player.isScanning"><i class="fas fa-rocket"></i> Launch</button>
                       <button class="list-group-item list-group-item-action" @click="land()" v-if="player.isOrbiting" :disabled="isGameover"><i class="fas fa-rocket"></i> Land</button>
                       <button class="list-group-item list-group-item-action" v-on:click="explore(-1)" :disabled="player.isScanning || player.isMoving || isGameover" v-if="!player.ship && !player.isMoving"><i class="fas fa-hiking"></i> Explore Previous Area </button>
                       <button class="list-group-item list-group-item-action" @click="explore(1)" :disabled="player.isMoving || player.isScanning || isGameover" v-if="!player.ship && !player.isMoving"><i class="fas fa-hiking"></i> Explore Next Area</button>
@@ -108,7 +109,7 @@
             
             
             <div class="list-group" v-if="!isLoading && player.isOrbiting">
-              <button @click="selectPlanet(planet.id)" class="list-group-item list-group-item-action" :class="[ planet.id == currentOrbit ? 'active' : '']" v-if="planet.scanned" v-for="planet in starsystem.planets" role="button" type="button" style="cursor: pointer"><i class="fas fa-globe"></i> <i class="fas fa-map-marker" v-if="planet.id == currentOrbit"></i> Planet {{planet.name}} 
+              <button @click="selectPlanet(planet.id)" class="list-group-item list-group-item-action" :class="[ planet.id === currentOrbit ? 'active' : '']" v-if="planet.scanned" v-for="planet in starsystem.planets" role="button" type="button" style="cursor: pointer"><i class="fas fa-globe"></i> <i class="fas fa-map-marker" v-if="planet.id == currentOrbit"></i> Planet {{planet.name}} 
                 <span class="badge badge-warning float-right">{{Math.abs((planet.starDistance - player.starDistance)/1000).toFixed(1)}} <i class="fas fa-gas-pump"></i></span>
               </button>
             </div>

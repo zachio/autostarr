@@ -26,6 +26,11 @@ class Area{
 		    max: carbon,
 		    amount: carbon
 		}
+    let minerals = Math.between(0,100, this.seed++)
+    this.minerals = {
+      max: minerals,
+		  amount: minerals
+    }
 		return this
 	}
 	removeResource(id){

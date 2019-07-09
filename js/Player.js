@@ -20,6 +20,10 @@ class Player {
 			carbon: {
         max: 100,
         amount: 0
+      },
+      minerals: {
+        max: 100,
+        amount: 0
       }
 		}
 	}

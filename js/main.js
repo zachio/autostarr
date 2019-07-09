@@ -62,6 +62,7 @@ var app = new Vue({
     new Image().src = "img/gameover.2.gif"
     jumboImg.addEventListener("load", function(){
       self.isLoading = false
+      self.setAlert("alert-danger", `Danger! Power levels are critically low. Find a charging station immediately.`)
       self.jumbotron.image = "img/spaceship-landed.jpg"
       self.jumbotron.title = "Unknown Area"
       self.jumbotron.description = `You awake on an alien planet. It appears your memory was corrupted and you have no record of how you got here. You are only familiar with the spaceship landed on the ground in the area.` 
@@ -286,16 +287,15 @@ var app = new Vue({
       let callback = function(){
         area.scanned = true
         player.isScanning = false
-        self.setAlert("alert-success",`Area scanned successfull!`)
         self.area.scannedPercent = 0
         self.progressBar.percent = 0
-        self.setAlert(`alert-info`,`Your scanner reveals you are in Sector ${area.id}`)
+        self.setAlert(`alert-success`,`Scan complete! ${self.area.carbon.amount} carbon, ${self.area.minerals.amount} minerals`)
         self.area.title = `Sector ${self.area.id}`
-        self.area.description = `Your scanner revealed this is Sector ${area.id}. There is ${area.carbon.amount.toFixed()} carbon in the area. `
+        self.area.description = `The data your scanner revealed this area had ${area.carbon.amount.toFixed()} carbon and ${area.minerals.amount.toFixed()} minerals. Downloaded the data to the maps and marked this area as Sector ${area.id}.`
         self.jumbotron.title = self.area.title
         self.jumbotron.description = self.area.description
         if(self.spaceship.address[2] === self.area.id) {
-          self.jumbotron.description += `There is a spaceship parked in the area.`
+          self.jumbotron.description += ` There is a spaceship parked in the area.`
         }
       }
       var start = Date.now()
@@ -372,6 +372,7 @@ var app = new Vue({
       requestAnimationFrame(step)
     },
     enterSpaceship: function() {
+      
       var self = this
       var start = Date.now()
       var duration = 1000
@@ -384,10 +385,19 @@ var app = new Vue({
         } else {
           self.player.ship = self.spaceship.id
           self.spaceship.progress.enter = 0
-          self.progressBar.percent = 0
+          
           self.jumbotron.image = "img/spaceship-interior.2.jpg"
+          self.progressBar.percent = 0
           self.jumbotron.title = `Spaceship Interior`
-          self.jumbotron.description = `Your spaceship is ready for launch. Fuel level at ${((self.spaceship.fuel/self.spaceship.fuelMax)*100).toFixed()} percent.`
+          if(self.player.energy.amount < self.player.energy.max) {
+            self.setAlert("alert-info", `Wirelessly charging...`)
+          }
+          if(self.spaceship.fuel < 5) {
+            self.jumbotron.description = `Your spaceship is low on fuel and not enough for launch. Fuel level at ${((self.spaceship.fuel/self.spaceship.fuelMax)*100).toFixed()} percent. You can craft fuel from carbon. You can find carbon by scanning areas.`
+          } else {
+            self.jumbotron.description = `Your spaceship is ready for launch. Fuel level at ${((self.spaceship.fuel/self.spaceship.fuelMax)*100).toFixed()} percent.`
+          }
+          
         }
         
       }
@@ -407,6 +417,7 @@ var app = new Vue({
           self.player.ship = null
           self.spaceship.progress.exit = 0
           self.progressBar.percent = 0
+          self.setAlert("alert-success",`You exited the ship.`)
           self.jumbotron.image = self.area.image
           self.jumbotron.title = self.area.title
           self.jumbotron.description = self.area.description
@@ -439,13 +450,25 @@ var app = new Vue({
     },
     clickMineCarbon: function(){
       if(this.area.carbon.amount > 0 && this.player.inventory.carbon.amount < this.player.inventory.carbon.max) {
-          this.player.energy.amount -= 1
-          if(this.player.energy.amount <= 0) {
-             this.gameover()
-          }
+        this.player.energy.amount -= 1
+        if(this.player.energy.amount <= 0) {
+           this.gameover()
+        } else {
           this.area.carbon.amount -= 1
           this.player.inventory.carbon.amount += 1
         }
+      }
+    },
+    mineMinerals(){
+      if(this.area.minerals.amount > 0 && this.player.inventory.minerals.amount < this.player.inventory.minerals.max) {
+        this.player.energy.amount -= 1
+        if(this.player.energy.amount <= 0) {
+           this.gameover()
+        } else {
+          this.area.minerals.amount -= 1
+          this.player.inventory.minerals.amount += 1
+        }
+      }
     },
     craftFuel() {
       if(this.player.inventory.carbon.amount >= 10 && this.spaceship.fuel < this.spaceship.fuelMax) {
@@ -458,7 +481,12 @@ var app = new Vue({
     },
     gameover(){
       this.jumbotron.image = "img/gameover.2.gif"
-      this.setAlert("alert-danger", `You died. Game over.`)
+      if(this.player.energy.amount <= 0) {
+        this.setAlert("alert-danger", `You died from running out of power. Game over.`)
+      } else {
+        this.setAlert("alert-danger", `You died. Game over.`)
+      }
+      
       this.player.energy.amount = 0
       this.isGameover = true
     }

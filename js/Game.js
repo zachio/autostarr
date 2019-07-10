@@ -3,7 +3,6 @@ class Game {
     constructor() {
       var data = null
       if(localStorage.getItem("autostarr")) {
-        console.log("local storage detected")
         data = JSON.parse(localStorage.autostarr)   
       } else {
         data = {
@@ -49,36 +48,10 @@ class Game {
         data: data,
         created: function() {
           //Initialize game
-          let starId = 3
-          this.starsystem = (this.starsystem) ? this.starsystem : new StarSystem(starId)
-          let planetId = Math.floor((Math.random() * this.starsystem.planetTotal))
-          this.planet = (this.planet) ? this.planet : this.starsystem.planets[planetId]
-          this.targetPlanet = (this.targetPlanet) ? this.targetPlanet : planetId
-          this.currentOrbit = (this.currentOrbit) ? this.currentOrbit : planetId
-          let areaId = Math.floor((Math.random() * this.planet.size - 1))
-          this.area = (this.area) ? this.area : this.planet.areas[areaId]
-          this.player     = (this.player) ? this.player :  new Player(1, [starId, planetId, areaId])
-          this.spaceship  = (this.spaceship) ? this.spaceship : new SpaceShip(1, [starId, planetId, areaId])
-          this.spaceship.travel.targetPlanet = this.planet
-          this.player.starDistance = this.planet.starDistance
+          if(!localStorage.getItem("autostarr")) {
+            this.reset()
+          }
           var self = this
-          //preload images
-          var jumboImg = new Image()
-          jumboImg.src = "img/loading.gif"
-          var spaceshipInterior = new Image()
-          spaceshipInterior.src = "img/spaceship-interior.3.gif"
-          var warp = new Image()
-          warp.src = "img/warp.gif"
-          new Image().src = "img/atmosphere-entry.gif"
-          new Image().src = "img/gameover.2.gif"
-          jumboImg.addEventListener("load", function(){
-            self.isLoading = false
-            self.alert.type = (self.alert.type) ? self.alert.type : "alert-info"
-            self.alert.message = (self.alert.message) ? self.alert.message : `Danger! Power levels are critically low. Find a charging station immediately.`
-            self.jumbotron.image = (localStorage.getItem("autostarr")) ? self.jumbotron.image : "img/spaceship-landed.jpg"
-            self.jumbotron.title = (self.jumbotron.title) ? self.jumbotron.title : "Unknown Area"
-            self.jumbotron.description = (self.jumbotron.description) ? self.jumbotron.description : `You awake on an alien planet. It appears your memory was corrupted and you have no record of how you got here. You are only familiar with the spaceship landed on the ground in the area.` 
-          })
           this.lastTick = Date.now()
           var now = Date.now()
           var tick = function() {
@@ -498,6 +471,41 @@ class Game {
           },
           save(data) {
             localStorage.setItem("autostarr", JSON.stringify(data))
+          },
+          reset() {
+            //Initialize game
+            let starId = 3
+            this.starsystem = new StarSystem(starId)
+            let planetId = Math.floor((Math.random() * this.starsystem.planetTotal))
+            this.planet = this.starsystem.planets[planetId]
+            this.targetPlanet = planetId
+            this.currentOrbit = planetId
+            let areaId = Math.floor((Math.random() * this.planet.size - 1))
+            this.area = this.planet.areas[areaId]
+            this.player     =  new Player(1, [starId, planetId, areaId])
+            this.spaceship  = new SpaceShip(1, [starId, planetId, areaId])
+            this.spaceship.travel.targetPlanet = this.planet
+            this.player.starDistance = this.planet.starDistance
+            var self = this
+            //preload images
+            var jumboImg = new Image()
+            jumboImg.src = "img/loading.gif"
+            var spaceshipInterior = new Image()
+            spaceshipInterior.src = "img/spaceship-interior.3.gif"
+            var warp = new Image()
+            warp.src = "img/warp.gif"
+            new Image().src = "img/atmosphere-entry.gif"
+            new Image().src = "img/gameover.2.gif"
+            this.progressBar.percent = 0
+            this.isGameover = false
+            jumboImg.addEventListener("load", function(){
+              self.isLoading = false
+              self.alert.type = "alert-info"
+              self.alert.message = `Danger! Power levels are critically low. Find a charging station immediately.`
+              self.jumbotron.image = "img/spaceship-landed.jpg"
+              self.jumbotron.title = "Unknown Area"
+              self.jumbotron.description = `You awake on an alien planet. It appears your memory was corrupted and you have no record of how you got here. You are only familiar with the spaceship landed on the ground in the area.` 
+            })
           }
         }
       }

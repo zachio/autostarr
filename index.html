@@ -69,7 +69,7 @@
                   </div>
                   <div class="col">
                     <div class="list-group mb-2" v-if="!isLoading">
-                      <button class="list-group-item list-group-item-action" v-on:click="scanArea()" v-if="player.isLanded && !player.ship && !player.isMoving" :disable="isGameover"><i class="fas fa-search"></i>  Scan Area</button>
+                      <button class="list-group-item list-group-item-action" v-on:click="scanArea()" v-if="player.isLanded && !player.ship && !player.isMoving" :disabled="isGameover"><i class="fas fa-search"></i>  Scan Area</button>
                       <button class="list-group-item list-group-item-action" @click="enterSpaceship()" v-if="!player.ship && spaceship.address[2] === player.address[2] && !player.isMoving" :disabled="player.isMoving || player.isScanning || isGameover"><i class="fas fa-door-open"></i> Board Spacecraft</button>
                       <button class="list-group-item list-group-item-action" @click="craftFuel()" v-if="player.ship"><i class="fas fa-fill-drip"></i> Craft Fuel</button>
 <!--                       <button class="list-group-item list-group-item-action" @click="craftTruck()" v-if="spaceship.address[2] === player.address[2]"><i class="fas fa-truck-pickup"></i> Craft Rover</button> -->
@@ -82,6 +82,7 @@
                       <button class="list-group-item list-group-item-action" @click="land()" v-if="player.isOrbiting" :disabled="isGameover"><i class="fas fa-rocket"></i> Land</button>
                       <button class="list-group-item list-group-item-action" v-on:click="explore(-1)" :disabled="player.isScanning || player.isMoving || isGameover" v-if="!player.ship && !player.isMoving"><i class="fas fa-hiking"></i> Explore Previous Area </button>
                       <button class="list-group-item list-group-item-action" @click="explore(1)" :disabled="player.isMoving || player.isScanning || isGameover" v-if="!player.ship && !player.isMoving"><i class="fas fa-hiking"></i> Explore Next Area</button>
+                      <button class="list-group-item list-group-item-danger" @click="reset()" v-if="isGameover"><i class="fas fa-power-off"></i> Reset</button>
                     </div>
                   </div>
                 </div>

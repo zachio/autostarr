@@ -39,7 +39,7 @@ class Game {
           lastTick: null,
           isGameover: false,
           version: 32,
-          isSaving: false
+          isSaving: true
         }
       }
       this.state = {

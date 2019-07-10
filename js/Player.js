@@ -17,14 +17,8 @@ class Player {
 		this.inventory = {
 			max: 100,
 			amount: 0,
-			carbon: {
-        max: 100,
-        amount: 0
-      },
-      minerals: {
-        max: 100,
-        amount: 0
-      }
+			carbon: 0,
+      minerals: 0
 		}
 	}
 }

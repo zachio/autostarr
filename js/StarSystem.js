@@ -10,10 +10,6 @@ class StarSystem {
     this.scanned = false
     this.description = this.jumbotext()
     this.image = "img/sun.jpg"
-    this.alert = {
-      type: null,
-      message: null
-    }
     for(var i=0; i < this.planetTotal; i++) {
       let planet = new Planet([this.id, i])
       this.planets.push(planet)

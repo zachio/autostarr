@@ -13,12 +13,9 @@ class Game {
           player       : null,
           spaceship    : null,
           progressBar: {
-            title: null,
-            message: null,
-            percent: 0,
-            show: false,
-            alertType: "alert-info",
-            icon: "fa-search"
+            show: true,
+            type: "progress-bar-info",
+            percent: 0
           },
           jumbotron: {
             image: "img/loading.gif",
@@ -28,7 +25,8 @@ class Game {
           planet: null,
           alert: {
             show: false,
-            type: null,
+            icon: null,
+            type: "alert-info",
             message: null
           },
           targetPlanet: null,
@@ -40,7 +38,8 @@ class Game {
           },
           lastTick: null,
           isGameover: false,
-          version: 31
+          version: 32,
+          isSaving: false
         }
       }
       this.state = {
@@ -72,9 +71,11 @@ class Game {
             requestAnimationFrame(tick)
           }
           requestAnimationFrame(tick)
-          setInterval(function(){ 
+          if(this.isSaving) {
+            setInterval(function(){ 
             self.save(self._data)
             },1000)
+          }
         },
         methods: {
           launch: function() {
@@ -82,7 +83,7 @@ class Game {
               this.spaceship.isMoving = true
               this.player.isLanded = false
               //Launch from planet
-              this.progressBar.title = `Initializing launch...`
+              this.setAlert(`alert-info`,`Initializing launch...`)
               var self = this
               let callback = function(){
   
@@ -239,7 +240,6 @@ class Game {
             var loop = setInterval(function(){
               if (i >= self.starsystem.planets.length){
                 self.player.isScanning = false
-                self.progressBar.title = `Scan Complete`
                 self.setAlert("alert-success",`Scan Complete. You discovered ${self.starsystem.planetTotal} planets!`)
                 self.progressBar.percent = 0
                 clearInterval(loop)
@@ -255,9 +255,10 @@ class Game {
           selectPlanet: function(planetId){
             this.targetPlanet = planetId
           },
-          setAlert: function(type, message) {
-            this.starsystem.alert.type = type
-            this.starsystem.alert.message = message
+          setAlert: function(type, message, icon = null) {
+            this.alert.type = type
+            this.alert.icon = icon
+            this.alert.message = message
           },
           scanArea: function(id) {
             var player = this.player
@@ -302,7 +303,6 @@ class Game {
             requestAnimationFrame(tick)
           },
           explore: function(direction) {
-            this.progressBar.show = true
             this.progressBar.icon = "fa-hiking"
             this.setAlert("alert-info","Exploring new sector...")
             var self = this
@@ -332,7 +332,6 @@ class Game {
                 self.setAlert("alert-success",`You entered an new area.`)
                 area.discovered = true
               }
-              self.progressBar.message = null
               self.progressBar.percent = 0
               self.player.isMoving = false
             }
@@ -376,7 +375,7 @@ class Game {
                 self.progressBar.percent = 0
                 self.jumbotron.title = `Spaceship Interior`
                 if(self.player.energy.amount < self.player.energy.max) {
-                  self.setAlert("alert-info", `Wirelessly charging...`)
+                  self.setAlert("alert-info", `Wirelessly charging...`, "fa-bolt")
                 }
                 if(self.spaceship.fuel < 5) {
                   self.jumbotron.description = `Your spaceship is low on fuel and not enough for launch. Fuel level at ${((self.spaceship.fuel/self.spaceship.fuelMax)*100).toFixed()} percent. You can craft fuel from carbon. You can find carbon by scanning areas.`
@@ -417,10 +416,11 @@ class Game {
             this.miningCarbon = false
           },
           mineCarbon: function(){
-            if(this.area.carbon.amount > 0 && this.miningCarbon && this.player.inventory.carbon.amount < this.player.inventory.carbon.max) {
+            if(this.area.carbon.amount > 0 && this.miningCarbon && this.player.inventory.amount < this.player.inventory.max) {
               this.player.energy.amount -= 1/60
               this.area.carbon.amount -= 1/60
-              this.player.inventory.carbon.amount += 1/60 
+              this.player.inventory.carbon += 1/60 
+              this.player.inventory.amount += 1/60 
               if(this.player.energy.amount <= 0) {
                  this.gameover()
               }
@@ -429,30 +429,33 @@ class Game {
             }
           },
           clickMineCarbon: function(){
-            if(this.area.carbon.amount > 0 && this.player.inventory.carbon.amount < this.player.inventory.carbon.max) {
+            if(this.area.carbon.amount > 0 && this.player.inventory.amount < this.player.inventory.max) {
               this.player.energy.amount -= 1
               if(this.player.energy.amount <= 0) {
                  this.gameover()
               } else {
                 this.area.carbon.amount -= 1
-                this.player.inventory.carbon.amount += 1
+                this.player.inventory.carbon += 1
+                this.player.inventory.amount += 1
               }
             }
           },
           mineMinerals(){
-            if(this.area.minerals.amount > 0 && this.player.inventory.minerals.amount < this.player.inventory.minerals.max) {
+            if(this.area.minerals.amount > 0 && this.player.inventory.amount < this.player.inventory.max) {
               this.player.energy.amount -= 1
               if(this.player.energy.amount <= 0) {
                  this.gameover()
               } else {
                 this.area.minerals.amount -= 1
-                this.player.inventory.minerals.amount += 1
+                this.player.inventory.minerals += 1
+                this.player.inventory.amount += 1
               }
             }
           },
           craftFuel() {
-            if(this.player.inventory.carbon.amount >= 10 && this.spaceship.fuel < this.spaceship.fuelMax) {
-              this.player.inventory.carbon.amount -= 10
+            if(this.player.inventory.carbon >= 10 && this.spaceship.fuel < this.spaceship.fuelMax) {
+              this.player.inventory.carbon -= 10
+              this.player.inventory.amount -= 10
               this.spaceship.fuel++
               this.setAlert("alert-success", `You crafted 1 fuel from 10 carbon`)
             } else {
@@ -500,8 +503,7 @@ class Game {
             this.isGameover = false
             jumboImg.addEventListener("load", function(){
               self.isLoading = false
-              self.alert.type = "alert-info"
-              self.alert.message = `Danger! Power levels are critically low. Find a charging station immediately.`
+              self.setAlert("alert-danger", `Danger! Power levels are critically low. Find a charging station immediately.`, "fa-bolt")
               self.jumbotron.image = "img/spaceship-landed.jpg"
               self.jumbotron.title = "Unknown Area"
               self.jumbotron.description = `You awake on an alien planet. It appears your memory was corrupted and you have no record of how you got here. You are only familiar with the spaceship landed on the ground in the area.` 

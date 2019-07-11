@@ -3,20 +3,19 @@ class StarSystem {
 		this.id = id
 		this.address=[id]
     this.seed = id
-		this.name = this.nameStar()
-		this.color = this.pickColor()
-    this.planetTotal = Math.between(1,5,this.seed++)
+		this.name = `The ${this.nameStar()} System`
+    this.planetTotal = Math.between(2,6,this.seed++)
     this.planets = []
-    this.scanned = false
-    this.description = this.jumbotext()
-    this.image = "img/sun.jpg"
+    this.astronomicalObjects = []
+    this.astronomicalObjects.push(new Star([id,0]))
     for(var i=0; i < this.planetTotal; i++) {
-      let planet = new Planet([this.id, i])
+      let planet = new Planet([this.id, i+1])
       this.planets.push(planet)
+      this.astronomicalObjects.push(planet)
     }
 	}
-	
-	nameStar(){
+  
+  nameStar(){
 		let name=""
 		let syllabolCount=Math.between(2 ,5, this.seed++)
 		let syllabols = ["fo","ler","kep","bo","pi","the","thi","ph","ad"]
@@ -25,15 +24,6 @@ class StarSystem {
 		}
 			return name.charAt(0).toUpperCase()+name.slice(1)
 	}
-	
-	pickColor(){
-		let colors=["white","orange","blue","red"]
-		return colors[Math.between(0,colors.length,this.seed++)]
-	}
-  
-  jumbotext() {
-    return "You are orbiting the " + this.name + " " + this.color + " star."
-  }
   
   draw(canvas) {
     //draw starfield

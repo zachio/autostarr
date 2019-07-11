@@ -17,20 +17,20 @@ class Planet {
 			type: "alert-info",
 			message: null
 		},
-		this.title = `Planet ${this.name}`
+		this.title = `The Planet ${this.name}`
 		this.description = `${this.name} is a ${this.color} planet and has ${this.size} areas to explore. It has ${this.moons} moons and is ${this.starDistance} distance units from it's host star.`
 		this.areas = []
 		for(var i = 0; i < this.size; i++){
 		  let areaId = i
 		  this.areas.push(new Area([starId, planetId, areaId]))
 		}
+    this.icon = "fa-globe"
 		return this
 	}
 	
 	pickColor(){
 		let colors=["white","orange","blue","red","green"]
 		return colors[Math.between(0,colors.length,this.seed++)]
-		
 	}
 	
 	namePlanet(){

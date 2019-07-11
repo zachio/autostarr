@@ -73,15 +73,15 @@
                     <div class="list-group mb-2" v-if="!isLoading">
                       <button class="list-group-item list-group-item-action" v-on:click="scanArea()" v-if="player.isLanded && !player.ship && !player.isMoving" :disabled="isGameover"><i class="fas fa-search"></i>  Scan Area</button>
                       <button class="list-group-item list-group-item-action" @click="enterSpaceship()" v-if="!player.ship && spaceship.address[2] === player.address[2] && !player.isMoving" :disabled="player.isMoving || player.isScanning || isGameover"><i class="fas fa-door-open"></i> Board Spacecraft</button>
-                      <button class="list-group-item list-group-item-action" @click="craftFuel()" v-if="player.ship"><i class="fas fa-fill-drip"></i> Craft Fuel</button>
+                      <button class="list-group-item list-group-item-action" @click="craftFuel()" v-if="player.ship" :disabled="busy"><i class="fas fa-fill-drip"></i> Craft Fuel</button>
 <!--                       <button class="list-group-item list-group-item-action" @click="craftTruck()" v-if="spaceship.address[2] === player.address[2]"><i class="fas fa-truck-pickup"></i> Craft Rover</button> -->
                       <button class="list-group-item list-group-item-action" @click="scan()" v-if="player.isOrbiting && !spaceship.isMoving" :disabled="spaceship.isMoving || player.isScanning || isGameover"><i class="fas fa-search"></i> Scan for planets</button>
                       <button class="list-group-item list-group-item-action" @click="travel(targetPlanet)" v-if="player.isOrbiting && targetPlanet != currentOrbit" :disable="spaceship.isMoving || isGameover">
-                        <i class="fas fa-rocket"></i> Travel to Planet <span class="badge badge-warning">{{Math.abs((starsystem.planets[targetPlanet].starDistance - player.starDistance)/1000).toFixed(1)}} <i class="fas fa-gas-pump"></i></span>
+                        <i class="fas fa-rocket"></i> Travel <span class="badge badge-warning">{{Math.abs((starsystem.astronomicalObjects[targetPlanet].starDistance - player.starDistance)/1000).toFixed(1)}} <i class="fas fa-gas-pump"></i></span>
                       </button>
                       <button class="list-group-item list-group-item-action" @click="exitSpaceship()" v-if="player.ship && spaceship.address[2] === player.address[2] && player.isLanded" :disabled="player.isMoving || player.isScanning || isGameover"><i class="fas fa-door-open"></i> Exit Ship</button>
                       <button class="list-group-item list-group-item-action" @click="launch()" v-if="spaceship.address[2] === player.address[2] && player.ship && player.isLanded" :disabled="player.isMoving || player.isScanning"><i class="fas fa-rocket"></i> Launch</button>
-                      <button class="list-group-item list-group-item-action" @click="land()" v-if="player.isOrbiting" :disabled="isGameover"><i class="fas fa-rocket"></i> Land</button>
+                      <button class="list-group-item list-group-item-action" @click="land()" v-if="player.isOrbiting && targetPlanet" :disabled="isGameover"><i class="fas fa-rocket"></i> Land</button>
                       <button class="list-group-item list-group-item-action" v-on:click="explore(-1)" :disabled="player.isScanning || player.isMoving || isGameover" v-if="!player.ship && !player.isMoving"><i class="fas fa-hiking"></i> Explore Previous Area </button>
                       <button class="list-group-item list-group-item-action" @click="explore(1)" :disabled="player.isMoving || player.isScanning || isGameover" v-if="!player.ship && !player.isMoving"><i class="fas fa-hiking"></i> Explore Next Area</button>
                       <button class="list-group-item list-group-item-danger" @click="reset()" v-if="isGameover"><i class="fas fa-power-off"></i> Reset</button>
@@ -94,7 +94,7 @@
 
           <!-- Controls -->
           <div class="col-md-4 mb-5">
-            <h5><i class="fas fa-box"></i> Inventory</h5>
+            <h5><i class="fas fa-box"></i> Personal Inventory</h5>
             <div class="list-group mb-2">
               <li class="list-group-item list-group-item-primary">
                 <h6 class="mb-1"><i class="fas fa-box"></i> Storage <span class="badge float-right">{{player.inventory.amount.toFixed()}}/{{player.inventory.max}}</span></h6>
@@ -102,23 +102,23 @@
                   <div class="progress-bar bg-primary" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" :style="{width: (player.inventory.amount/player.inventory.max)*100 +'%'}"></div>
                 </div>
               </li>
-              <li class="list-group-item list-group-item-success">
-                <h6 class="mb-1"><i class="fas fa-tree"></i> Carbon <span class="badge float-right">{{player.inventory.carbon.toFixed()}}</span></h6>
+              <li class="list-group-item list-group-item-success" v-if="player.inventory.carbon">
+                <h6 class="mb-1"><i class="fas fa-tree"></i> Carbon <i class="fas fa-trash float-right ml-2" @click="removeCarbon()" :disabled="isGameover"></i><span class="badge float-right badge-success">{{player.inventory.carbon.toFixed()}}</span></h6>
               </li>
-              <li class="list-group-item list-group-item-dark">
-                <h6 class="mb-1"><i class="fas fa-mountain"></i> Minerals <span class="badge float-right">{{player.inventory.minerals.toFixed()}}</span></h6>
+              <li class="list-group-item list-group-item-dark" v-if="player.inventory.minerals">
+                <h6 class="mb-1"><i class="fas fa-mountain"></i> Minerals <i class="fas fa-trash float-right ml-2"@click="removeMinerals()" :disabled="isGameover"></i><span class="badge float-right badge-dark">{{player.inventory.minerals.toFixed()}}</span></h6>
               </li>
             </div>
             
             
             <div class="list-group" v-if="!isLoading && player.isOrbiting">
-              <button @click="selectPlanet(planet.id)" class="list-group-item list-group-item-action" :class="[ planet.id === currentOrbit ? 'active' : '']" v-if="planet.scanned" v-for="planet in starsystem.planets" role="button" type="button" style="cursor: pointer"><i class="fas fa-globe"></i> <i class="fas fa-map-marker" v-if="planet.id == currentOrbit"></i> Planet {{planet.name}} 
-                <span class="badge badge-warning float-right">{{Math.abs((planet.starDistance - player.starDistance)/1000).toFixed(1)}} <i class="fas fa-gas-pump"></i></span>
+              <button @click="selectAstroObject(astroObject.id)" class="list-group-item list-group-item-action" :class="[ astroObject.id === currentOrbit ? 'active' : '']" v-if="astroObject.scanned" v-for="astroObject in starsystem.astronomicalObjects" role="button" type="button" style="cursor: pointer"><i class="fas" :class="astroObject.icon"></i> <i class="fas fa-map-marker" v-if="astroObject.id == currentOrbit"></i> {{astroObject.name}} 
+                <span class="badge badge-warning float-right">{{Math.abs((astroObject.starDistance - player.starDistance)/1000).toFixed(1)}} <i class="fas fa-gas-pump"></i></span>
               </button>
             </div>
             <h5 v-if="area.scanned && !player.ship">Natural Resources</h5>
             <div class="list-group">
-              <button type="button" class="list-group-item list-group-item-action list-group-item-success" v-if="area.scanned && !player.isMoving && !player.ship" @click="clickMineCarbon()" @mouseDown="startMiningCarbon()" @mouseUp="stopMiningCarbon()" :disabled="isGameover">
+              <button type="button" class="list-group-item list-group-item-action list-group-item-success" v-if="area.scanned && !player.isMoving && !player.ship" @click="clickMineCarbon()" :disabled="isGameover">
                   <h6 class="mb-0"><i class="fas fa-tree"></i> Mine Carbon {{area.carbon.amount.toFixed()}} / {{area.carbon.max}}</h6>
                   <div class="progress">
                     <div class="progress-bar progress-bar-striped bg-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" :style="{width: (area.carbon.amount/area.carbon.max)*100 +'%'}"></div>
@@ -170,6 +170,7 @@
     <script src="js/Math.js"></script>
     <script src="js/ProgressBar.js"></script>
     <script src="js/StarSystem.js"></script>
+    <script src="js/Star.js"></script>
     <script src="js/Planet.js"></script>
     <script src="js/SpaceShip.js"></script>
     <script src="js/Player.js"></script>

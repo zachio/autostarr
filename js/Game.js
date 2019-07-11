@@ -6,7 +6,7 @@ class Game {
         data = JSON.parse(localStorage.autostarr)
       } else {
         data = {
-          version: 33,
+          version: 34,
           autoSave: true,
           isLoading: true,
           loadingImage: "./img/loading.gif",
@@ -76,7 +76,7 @@ class Game {
           if (this.autoSave) {
             setInterval(function() {
               self.save(self._data)
-            }, 1000)
+            }, 5000)
           }
         },
         methods: {
@@ -541,6 +541,11 @@ class Game {
               self.jumbotron.title = "Unknown Area"
               self.jumbotron.description = `You awake on an alien planet. It appears your memory was corrupted and you have no record of how you got here. You are only familiar with the spaceship landed on the ground in the area.`
             })
+          },
+          hardReset() {
+            this.autoSave = false
+            localStorage.clear()
+            location.reload()
           },
           progressBarAnimation(start, duration, callback = null, update = null) {
             var self = this

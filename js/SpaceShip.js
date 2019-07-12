@@ -3,8 +3,10 @@ class SpaceShip{
 	  this.id=id
 	  this.address=address
 	  this.pilot=null
-	  this.fuel = 0
- 	  this.fuelMax = 100
+	  this.fuel = {
+      amount: 0,
+      max: 1000
+    }
 	  this.speed = 1
 	  this.area = null
     this.progress = {

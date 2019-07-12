@@ -6,7 +6,7 @@ class Game {
         data = JSON.parse(localStorage.autostarr)
       } else {
         data = {
-          version: 34,
+          version: `35 Rover Update`,
           autoSave: true,
           isLoading: true,
           loadingImage: "./img/loading.gif",
@@ -41,7 +41,9 @@ class Game {
           },
           lastTick: null,
           isGameover: false,
-          busy: false
+          busy: false,
+          rover: null,
+          exploreIcon: "fa-hiking"
         }
       }
       this.state = {
@@ -65,8 +67,9 @@ class Game {
               }
             }
   
-            //recharge energy
-            if (self.player.ship && self.player.energy.amount < self.player.energy.max) {
+            //recharge energy in ship or rover
+            if (self.player.ship && self.player.energy.amount < self.player.energy.max || 
+                self.player.rover && self.player.energy.amount < self.player.energy.max) {
               self.player.energy.amount += 1 / 60
             }
             self.lastTick = now
@@ -81,7 +84,7 @@ class Game {
         },
         methods: {
           launch: function() {
-            if (this.spaceship.fuel >= 5) {
+            if (this.spaceship.fuel.amount >= 5) {
               this.spaceship.isMoving = true
               this.player.isLanded = false
               //Launch from planet
@@ -116,9 +119,9 @@ class Game {
                 if (progress < self.spaceship.travel.distance) {
                   //consume fuel
                   now = Date.now()
-                  self.spaceship.fuel -= 1 / (1000 / (now - lastTick))
-                  if (self.spaceship.fuel <= 0) {
-                    self.spaceship.fuel = 0
+                  self.spaceship.fuel.amount -= 1 / (1000 / (now - lastTick))
+                  if (self.spaceship.fuel.amount <= 0) {
+                    self.spaceship.fuel.amount = 0
                     return false
                   }
                   self.progressBar.percent = (progress / self.spaceship.travel.distance) * 100
@@ -204,9 +207,9 @@ class Game {
                 self.setAlert("alert-info", `Traveled ${progress} distance.`, "fa-map-marker")
                 //consume fuel
                 now = Date.now()
-                self.spaceship.fuel -= 1 / (1000 / (now - lastTick))
-                if (self.spaceship.fuel <= 0) {
-                  self.spaceship.fuel = 0
+                self.spaceship.fuel.amount -= 1 / (1000 / (now - lastTick))
+                if (self.spaceship.fuel.amount <= 0) {
+                  self.spaceship.fuel.amount = 0
                   self.gameover()
                   return
                 }
@@ -271,11 +274,13 @@ class Game {
             var area = this.area
             var planet = this.astroObject
             player.isScanning = true
+            this.busy = true
             this.scanner.title = `Scanning area...`
             var self = this
             let callback = function() {
               area.scanned = true
               player.isScanning = false
+              self.busy = false
               self.area.scannedPercent = 0
               self.progressBar.percent = 0
               self.setAlert(`alert-success`, `Scan complete! ${self.area.carbon.amount} carbon, ${self.area.minerals.amount} minerals`)
@@ -309,13 +314,25 @@ class Game {
             requestAnimationFrame(tick)
           },
           explore: function(direction) {
-            this.progressBar.icon = "fa-hiking"
-            this.setAlert("alert-info", "Exploring new sector...")
+            //calculate trip duration and check rover for fuel
+            var duration = 5000
+            if(this.player.rover) {
+              if(this.rover.fuel.amount <= 0) {
+                this.setAlert("alert-warning", `Rover is out of fuel. Craft fuel with carbon inside the rover to fill the gas tank.`, "fa-truck-pickup")
+                return
+                } else {
+                  duration = duration / this.rover.speed
+                }
+              
+              this.setAlert("alert-info", "Traveling to another area...", "fa-truck-pickup")
+            } else {
+              this.setAlert("alert-info", "Traveling to another area...", "fa-hiking")
+            }
+            
             var self = this
             var planet = this.astroObject
             var area = this.area
             var player = this.player
-            planet.alert.message = null
             player.isMoving = true
             let targetArea = area.id + direction
             if (targetArea < 0) {
@@ -324,8 +341,13 @@ class Game {
             if (targetArea >= planet.areas.length) {
               targetArea = 0
             }
-            player.address[2] = targetArea
             var callback = function() {
+              player.address[2] = targetArea
+              if(self.player.rover) {
+                self.rover.address[2] = targetArea
+                console.log(self.rover.address[2],targetArea)
+              }
+              
               self.area = planet.areas[targetArea]
               if (targetArea === self.spaceship.address[2]) {
                 self.jumbotron.image = "img/spaceship-landed.jpg"
@@ -338,29 +360,26 @@ class Game {
                 self.setAlert("alert-success", `You entered an new area.`)
                 area.discovered = true
               }
-              self.progressBar.percent = 0
               self.player.isMoving = false
             }
-  
-            var start = Date.now()
-            var duration = 5000
-            var step = function() {
-              let progress = Date.now() - start
-              if (progress < duration) {
+            var update = function() {
+              if(self.player.rover) {
+                self.rover.fuel.amount -= 1/60
+                if(self.rover.fuel.amount <= 0) {
+                  self.rover.fuel.amount = 0
+                }
+              } else {
                 self.player.energy.amount -= 1 / 60
-                self.progressBar.percent = (progress / duration) * 100
                 if (self.player.energy.amount <= 0) {
                   self.gameover()
-                  return
+                  return false
                 }
-                requestAnimationFrame(step)
-              } else {
-                callback()
-                self.spaceship.progress.travel = 0
-                self.progressBar.percent = 0
               }
+              
             }
-            requestAnimationFrame(step)
+            
+           
+            this.progressBarAnimation(Date.now(), duration, callback, update)
           },
           enterSpaceship: function() {
   
@@ -383,10 +402,10 @@ class Game {
                 if (self.player.energy.amount < self.player.energy.max) {
                   self.setAlert("alert-info", `Wirelessly charging...`, "fa-bolt")
                 }
-                if (self.spaceship.fuel < 5) {
-                  self.jumbotron.description = `Your spaceship is low on fuel and not enough for launch. Fuel level at ${((self.spaceship.fuel/self.spaceship.fuelMax)*100).toFixed()} percent. You can craft fuel from carbon. You can find carbon by scanning areas.`
+                if (self.spaceship.fuel.amount < 5) {
+                  self.jumbotron.description = `Your spaceship is low on fuel and not enough for launch. Fuel level at ${((self.spaceship.fuel.amount/self.spaceship.fuel.max)*100).toFixed()} percent. You can craft fuel from carbon. You can find carbon by scanning areas.`
                 } else {
-                  self.jumbotron.description = `Your spaceship is ready for launch. Fuel level at ${((self.spaceship.fuel/self.spaceship.fuelMax)*100).toFixed()} percent.`
+                  self.jumbotron.description = `Your spaceship is ready for launch. Fuel level at ${((self.spaceship.fuel.amount/self.spaceship.fuel.max)*100).toFixed()} percent.`
                 }
               }
   
@@ -476,20 +495,85 @@ class Game {
   
           },
           craftFuel() {
-            if (this.player.inventory.carbon >= 10 && this.spaceship.fuel < this.spaceship.fuelMax) {
+            
               var self = this
+              
+              var vehicle = null
+              if(this.spaceship) 
+                vehicle = this.spaceship
+              if(this.rover) 
+                vehicle = this.rover
+              if (this.player.inventory.carbon >= 10 && vehicle.fuel.amount < vehicle.fuel.max) {
               this.busy = true
               this.progressBarAnimation(Date.now(), 1000, function() {
                 self.player.inventory.carbon -= 10
                 self.player.inventory.amount -= 10
-                self.spaceship.fuel++
-                  self.setAlert("alert-success", `You crafted 1 fuel from 10 carbon`)
+                vehicle.fuel.amount++
+                self.setAlert("alert-success", `You crafted 1 fuel from 10 carbon`)
                 self.busy = false
               })
   
             } else {
               this.setAlert("alert-warning", `Could not craft fuel. Make sure you have carbon and your fuel tank is not already full.`)
             }
+          },
+          craftRover() {
+            var self = this
+            if(this.player.inventory.minerals >= 100 && !this.rover) {
+              this.setAlert("alert-info", `Crafting rover...`, "fa-truck")
+              this.progressBarAnimation(Date.now(), 10000, function(){
+                self.player.inventory.minerals -= 100
+                self.player.inventory.amount -= 100
+                self.rover = new Rover([self.player.address[0],self.player.address[1],self.player.address[2]])
+                self.setAlert("alert-success", `Successfully crafted a rover. Enter the rover and explore to travel twice as fast.`,'fa-truck-pickup')
+              }, function(){
+                self.player.energy.amount -= 1/60
+                if(self.player.energy.amount <= 0) {
+                  self.gameover()
+                }
+              })
+            } else {
+              this.setAlert("alert-info", `Not enough minerals to craft a rover. A rover requires 100 minerals to craft.`,'fa-truck-pickup')
+            }
+          },
+          enterRover(){
+            var self = this
+            this.progressBarAnimation(Date.now(), 1000, function(){
+              self.player.rover = true
+              self.exploreIcon = "fa-truck-pickup"
+              self.progressBar.percent = 0
+              self.setAlert("alert-info","Entered the rover")
+            })
+          },
+          exitRover() {
+            var self = this
+            this.progressBarAnimation(Date.now(), 1000, function(){
+              self.player.rover = false
+              self.exploreIcon = "fa-hiking"
+              self.progressBar.percent = 0
+              self.setAlert("alert-info","Exited rover")
+            })
+          },
+          isRoverParked() {
+            if(this.rover) {
+              if(this.rover.address[2] == this.player.address[2] && !this.ship && !this.player.rover) {
+                return true
+              }
+              return false
+            } else {
+              return false
+            }
+          },
+          roverFuelPercent(){
+            if(this.rover) {
+              return `${((this.rover.fuel.amount / this.rover.fuel.max) * 100)}%`
+            }
+          },
+          roverFuelLevel(){
+            if(this.rover) {
+              return `${this.rover.fuel.amount.toFixed()} / ${this.rover.fuel.max}`
+            }
+              
           },
           gameover() {
             this.jumbotron.image = "img/gameover.2.gif"
@@ -515,7 +599,6 @@ class Game {
             this.astroObject = this.starsystem.astronomicalObjects[astroId]
             this.targetPlanet = astroId
             this.currentOrbit = astroId
-            console.log(astroId)
             let areaId = Math.floor((Math.random() * this.astroObject.size - 1))
             this.area = this.astroObject.areas[areaId]
             this.player = new Player(1, [starId, astroId, areaId])
@@ -554,7 +637,9 @@ class Game {
               if (progress < duration) {
                 self.progressBar.percent = (progress / duration) * 100
                 if (update) {
-                  update()
+                  if(update() == false) {
+                    return
+                  }
                 }
                 requestAnimationFrame(tick)
               } else {

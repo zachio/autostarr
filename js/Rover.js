@@ -1,11 +1,18 @@
 class Rover {
-    constructor(address) {
-      this.address = address
-      this.fuel = {
-        amount: 0,
-        max: 10
-      }
-      this.speed = 2
-      this.player = null
+  constructor(starid, planetid, areaid) {
+    this.address = [starid, planetid, areaid]
+    this.fuel = {
+      amount: 0,
+      max: 100
     }
+    this.speed = 3
+    this.player = null
+    this.inventory = {
+      max: 1000,
+      amount: 0,
+      carbon: 0,
+      minerals: 0
+    },
+    this.isCrafted = false
   }
+}

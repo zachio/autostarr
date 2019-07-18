@@ -19,11 +19,7 @@ class Planet {
 		},
 		this.title = `The Planet ${this.name}`
 		this.description = `${this.name} is a ${this.color} planet and has ${this.size} areas to explore. It has ${this.moons} moons and is ${this.starDistance} distance units from it's host star.`
-		this.areas = []
-		for(var i = 0; i < this.size; i++){
-		  let areaId = i
-		  this.areas.push(new Area([starId, planetId, areaId]))
-		}
+		this.areas = {}
     this.icon = "fa-globe"
 		return this
 	}

@@ -1,5 +1,6 @@
 class Planet {
 	constructor(address) {
+		console.log(address)
 	  let starId = address[0]
 	  let planetId = address[1]
 		this.id = planetId

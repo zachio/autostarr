@@ -1,6 +1,5 @@
 class Planet {
 	constructor(address) {
-		console.log(address)
 	  let starId = address[0]
 	  let planetId = address[1]
 		this.id = planetId
@@ -37,6 +36,6 @@ class Planet {
 		for(let i=0;i<syllabols;i++){
 			name+=sounds[Math.between(0,sounds.length,this.seed++)]
 		}
-			return name.charAt(0).toUpperCase()+name.slice(1) 
-			}
+      return name.charAt(0).toUpperCase()+name.slice(1) 
+    }
 	}

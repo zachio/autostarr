@@ -1,15 +1,12 @@
 class Area{
-	constructor(address){
-    let starid = address[0]
-    let planetid = address[1]
-    let areaid = address[2]
+	constructor(starid, planetid, areaid){
 		let planet = new Planet(starid,planetid)
 		if(planet == null || areaid < 0 || areaid > planet.size){
 			console.error("Area does not exit!")
 			return null
 		}
 		this.id = areaid
-		this.address = address
+		this.address = [starid, planetid, areaid]
 		this.anomolies = []
 		this.seed = starid * 10 + planetid * 100 + areaid
 		let images = ["img/planet.1.groundlevel.png", "img/380_max.jpg"]

@@ -1,11 +1,17 @@
 class SpaceShip{
-	constructor(id,address){
+	constructor(id,starId=null,planetId=null,areaId=null){
 	  this.id=id
-	  this.address=address
+	  this.address=[starId,planetId,areaId]
 	  this.pilot=null
 	  this.fuel = {
       amount: 0,
       max: 1000
+    }
+    this.inventory = {
+      max: 10000,
+      amount: 0,
+      carbon: 0,
+      minerals: 0
     }
 	  this.speed = 1
 	  this.area = null
@@ -21,8 +27,8 @@ class SpaceShip{
       targetPlanet: null
     }
     this.isMoving = false
-	  if(typeof address[2] != 'undefined') {
-	    this.area = address[2]
+	  if(typeof this.address[2] != 'undefined') {
+	    this.area = this.address[2]
 	  }
     this.active = null
 	}

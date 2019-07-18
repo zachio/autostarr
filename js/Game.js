@@ -7,7 +7,7 @@ class Game {
     } else {
       data = {
         isRegistered: false,
-        version: `36 Inventory Update`,
+        version: `36.1 bug fixes`,
         autoSave: false,
         isLoading: true,
         loadingImage: "./img/loading.gif",
@@ -560,7 +560,7 @@ class Game {
           this.planet.areas[areaId] = this.area
           this.player = new Player(1, [starId, astroId, areaId])
           this.rover = new Rover(starId, astroId, areaId)
-          this.spaceship = new SpaceShip(1, [starId, astroId, areaId])
+          this.spaceship = new SpaceShip(1, starId, astroId, areaId)
           this.spaceship.travel.targetPlanet = this.astroObject
           this.player.starDistance = this.astroObject.starDistance
           var self = this

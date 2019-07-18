@@ -1,7 +1,5 @@
 class Planet {
-	constructor(address) {
-	  let starId = address[0]
-	  let planetId = address[1]
+	constructor(starId, planetId) {
 		this.id = planetId
 		this.address=[starId, planetId]
 		this.seed=starId*10+planetId
@@ -36,6 +34,6 @@ class Planet {
 		for(let i=0;i<syllabols;i++){
 			name+=sounds[Math.between(0,sounds.length,this.seed++)]
 		}
-      return name.charAt(0).toUpperCase()+name.slice(1) 
-    }
+			return name.charAt(0).toUpperCase()+name.slice(1) 
+			}
 	}

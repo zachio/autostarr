@@ -9,7 +9,7 @@ class StarSystem {
     this.astronomicalObjects = []
     this.astronomicalObjects.push(new Star([id,0]))
     for(var i=0; i < this.planetTotal; i++) {
-      let planet = new Planet([this.id, i+1])
+      let planet = new Planet(id, i+1)
       this.planets.push(planet)
       this.astronomicalObjects.push(planet)
     }

@@ -29,24 +29,21 @@
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
               <span class="navbar-toggler-icon"></span>
             </button>
-<!--             <div class="collapse navbar-collapse" id="navbarResponsive">
+            <div class="collapse navbar-collapse" id="navbarResponsive">
               <ul class="navbar-nav ml-auto">
-                <li class="nav-item active">
-                  <a class="nav-link" href="#">Scan
+                <li class="nav-item">
+                  <a class="nav-link" href="#save" @click="save(_data)">Save
                     <span class="sr-only">(current)</span>
                   </a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="#">Stats</a>
+                  <a class="nav-link" href="#reset" @click="hardReset()">Reset</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="#">Inventory</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="#">Crafting</a>
+                  <a class="nav-link" href="https://github.com/zachdyer/autostarr">GitHub</a>
                 </li>
               </ul>
-            </div> -->
+            </div>
           </div>
         </nav>
       </div>
@@ -78,8 +75,9 @@
                     <div class="list-group mb-2" v-if="!isLoading">
                       <button class="list-group-item list-group-item-action" v-on:click="scanArea()" v-if="!player.ship && !player.isMoving" :disabled="isGameover || busy"><i class="fas fa-search"></i>  Scan Area</button>
                       <button class="list-group-item list-group-item-action" @click="enterSpaceship()" v-if="!player.ship && spaceship.address[2] === player.address[2] && !player.isMoving" :disabled="player.isMoving || player.isScanning || isGameover || busy || player.rover"><i class="fas fa-door-open"></i> Board Spacecraft</button>
-                      <button class="list-group-item list-group-item-action" @click="craftFuel()" v-if="player.ship" :disabled="busy || isGameover"><i class="fas fa-fill-drip"></i> Craft Fuel</button>
+                      <button class="list-group-item list-group-item-action" @click="craftFuel()" v-if="player.ship" :disabled="busy || isGameover"><i class="fas fa-rocket"></i> Craft Fuel</button>
                       <button class="list-group-item list-group-item-action" @click="craftRoverFuel()" v-if="player.rover" :disabled="busy || isGameover"><i class="fas fa-truck-pickup"></i> Craft Fuel</button>
+                      <button class="list-group-item list-group-item-action" @click="craftAntiMatterFuel()" v-if="player.address[1] == 0 && player.isOrbiting" :disabled="busy || isGameover"><i class="fas fa-atom"></i> Craft Anti-matter Fuel</button>
                       <button class="list-group-item list-group-item-action" @click="craftRover()" v-if="spaceship.address[2] === player.address[2] && !player.ship && !rover.isCrafted && !player.isMoving" :disabled="busy || isGameover"><i class="fas fa-truck-pickup"></i> Craft Rover</button>
                       <button class="list-group-item list-group-item-action" @click="enterRover()" v-if="isRoverParked() && !player.isMoving" :disabled="busy || isGameover"><i class="fas fa-truck-pickup"></i> Enter Rover</button>
                       <button class="list-group-item list-group-item-action" @click="exitRover()" v-if="player.rover && !player.isMoving" :disabled="busy || isGameover"><i class="fas fa-truck-pickup"></i> Exit Rover</button>
@@ -87,9 +85,15 @@
                       <button class="list-group-item list-group-item-action" @click="travel(targetPlanet)" v-if="player.isOrbiting && targetPlanet != currentOrbit" :disable="spaceship.isMoving || isGameover">
                         <i class="fas fa-rocket"></i> Travel <span class="badge badge-warning">{{Math.abs((starsystem.astronomicalObjects[targetPlanet].starDistance - player.starDistance)/1000).toFixed(1)}} <i class="fas fa-gas-pump"></i></span>
                       </button>
+                      <button class="list-group-item list-group-item-action" @click="travelToStar(-1)" v-if="player.address[1] == 0 && !spaceship.isMoving" :disable="spaceship.isMoving || isGameover">
+                        <i class="fas fa-rocket"></i> Travel to {{starNeighborName(-1)}}
+                      </button>
+                      <button class="list-group-item list-group-item-action" @click="travelToStar(1)" v-if="player.address[1] == 0 && !spaceship.isMoving" :disable="spaceship.isMoving || isGameover">
+                        <i class="fas fa-rocket"></i> Travel to {{starNeighborName(1)}}
+                      </button>
                       <button class="list-group-item list-group-item-action" @click="exitSpaceship()" v-if="player.ship && spaceship.address[2] === player.address[2] && player.isLanded" :disabled="player.isMoving || player.isScanning || isGameover || player.rover"><i class="fas fa-door-open"></i> Exit Ship</button>
                       <button class="list-group-item list-group-item-action" @click="launch()" v-if="spaceship.address[2] === player.address[2] && player.ship && player.isLanded" :disabled="player.isMoving || player.isScanning || busy || isGameover"><i class="fas fa-rocket"></i> Launch</button>
-                      <button class="list-group-item list-group-item-action" @click="land()" v-if="player.isOrbiting && targetPlanet" :disabled="isGameover"><i class="fas fa-rocket"></i> Land</button>
+                      <button class="list-group-item list-group-item-action" @click="land()" v-if="player.isOrbiting && targetPlanet != 0 && targetPlanet == currentOrbit" :disabled="isGameover"><i class="fas fa-rocket"></i> Land</button>
                       <button class="list-group-item list-group-item-action" v-on:click="explore(-1)" :disabled="player.isScanning || player.isMoving || isGameover" v-if="!player.ship && !player.isMoving"><i class="fas" :class="exploreIcon"></i> Explore Left Area </button>
                       <button class="list-group-item list-group-item-action" @click="explore(1)" :disabled="player.isMoving || player.isScanning || isGameover" v-if="!player.ship && !player.isMoving"><i class="fas" :class="exploreIcon"></i> Explore Right Area</button>
                       <button class="list-group-item list-group-item-danger" @click="hardReset()" v-if="isGameover"><i class="fas fa-power-off"></i> Reset</button>
@@ -105,8 +109,14 @@
             
             <!-- Inventory section -->
             <div class="mb-2">
-              <h5><i class="fas fa-box"></i> Personal Inventory</h5>
+              <h5><i class="fas fa-user-astronaut"></i> Player</h5>
               <div class="list-group mb-2">
+                <li class="list-group-item list-group-item-warning">
+                  <h6 class="mb-1"><i class="fas fa-bolt"></i> Energy <span class="badge float-right">{{player.energy.amount.toFixed()}}/{{player.energy.max}}</span></h6>
+                  <div class="progress">
+                    <div class="progress-bar bg-warning" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" :style="{width: (player.energy.amount/player.energy.max)*100 +'%'}"></div>
+                  </div>
+                </li>
                 <li class="list-group-item list-group-item-primary">
                   <h6 class="mb-1"><i class="fas fa-box"></i> Storage <span class="badge float-right">{{player.inventory.amount.toFixed()}}/{{player.inventory.max}}</span></h6>
                   <div class="progress">
@@ -119,9 +129,7 @@
                     <i class="fas fa-trash float-right ml-2" @click="removeCarbon()" :disabled="isGameover"></i>
                     <i class="fas fa-truck-pickup float-right ml-2" @click="moveInventory('carbon','player','rover')" :disabled="isGameover" v-if="player.rover"></i>
                     <i class="fas fa-rocket float-right ml-2" @click="moveInventory('carbon','player','spaceship')" :disabled="isGameover" v-if="player.ship"></i>
-                    
                   </h6>
-                  
                 </li>
                 <li class="list-group-item list-group-item-dark" v-if="player.inventory.minerals">
                   <h6 class="mb-1"><i class="fas fa-mountain"></i> Minerals 
@@ -135,8 +143,14 @@
             </div>
             
             <div v-if="player.rover" class="mb-2">
-              <h5><i class="fas fa-box"></i> Rover Inventory</h5>
+              <h5><i class="fas fa-truck-pickup"></i> Rover</h5>
               <div class="list-group mb-2">
+                <li class="list-group-item list-group-item-danger">
+                  <h6 class="mb-1"><i class="fas fa-gas-pump"></i> Fuel <span class="badge float-right">{{rover.fuel.amount.toFixed()}}/{{rover.fuel.max}}</span></h6>
+                  <div class="progress">
+                    <div class="progress-bar bg-danger" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" :style="{width: (rover.fuel.amount/rover.fuel.max)*100 +'%'}"></div>
+                  </div>
+                </li>
                 <li class="list-group-item list-group-item-primary">
                   <h6 class="mb-1"><i class="fas fa-box"></i> Storage <span class="badge float-right">{{rover.inventory.amount.toFixed()}}/{{rover.inventory.max}}</span></h6>
                   <div class="progress">
@@ -162,8 +176,20 @@
             </div>
             
             <div v-if="player.ship" class="mb-2">
-              <h5><i class="fas fa-box"></i> Spaceship Inventory</h5>
+              <h5><i class="fas fa-rocket"></i> Spaceship</h5>
               <div class="list-group">
+                <li class="list-group-item list-group-item-danger">
+                  <h6 class="mb-1"><i class="fas fa-gas-pump"></i> Fuel <span class="badge float-right">{{spaceship.fuel.amount.toFixed()}}/{{spaceship.fuel.max}}</span></h6>
+                  <div class="progress">
+                    <div class="progress-bar bg-danger" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" :style="{width: (spaceship.fuel.amount/spaceship.fuel.max)*100 +'%'}"></div>
+                  </div>
+                </li>
+                <li class="list-group-item list-group-item-info">
+                  <h6 class="mb-1"><i class="fas fa-gas-pump"></i> Anti-matter Fuel <span class="badge float-right">{{spaceship.fuel.antimatter.amount.toFixed()}}/{{spaceship.fuel.antimatter.max}}</span></h6>
+                  <div class="progress">
+                    <div class="progress-bar bg-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" :style="{width: (spaceship.fuel.antimatter.amount/spaceship.fuel.antimatter.max)*100 +'%'}"></div>
+                  </div>
+                </li>
                 <li class="list-group-item list-group-item-primary">
                   <h6 class="mb-1"><i class="fas fa-box"></i> Storage <span class="badge float-right">{{spaceship.inventory.amount.toFixed()}}/{{spaceship.inventory.max}}</span></h6>
                   <div class="progress">
@@ -209,14 +235,14 @@
                     </div>
                 </button>
             </div>
-            <div class="list-group">
+<!--             <div class="list-group">
               <button type="button" class="list-group-item list-group-item-action list-group-item-primary" @click="save(_data)">
                   <h6 class="mb-0"><i class="fas fa-save"></i> Save</h6>
               </button>
               <button type="button" class="list-group-item list-group-item-action list-group-item-danger" @click="hardReset()">
                   <h6 class="mb-0"><i class="fas fa-power-off"></i> Reset</h6>
               </button>
-            </div>
+            </div> -->
           </div>
 
         </div>

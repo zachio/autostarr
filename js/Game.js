@@ -7,7 +7,7 @@ class Game {
     } else {
       data = {
         isRegistered: false,
-        version: `36.1 bug fixes`,
+        version: `37 Interstellar Travel Update`,
         autoSave: false,
         isLoading: true,
         loadingImage: "./img/loading.gif",
@@ -45,9 +45,7 @@ class Game {
         busy: false,
         rover: null,
         exploreIcon: "fa-hiking",
-        areas: [],
-        planets: [],
-        stars: [],
+        stars: {},
       }
     }
     this.state = {
@@ -85,7 +83,6 @@ class Game {
             this.setAlert(`alert-info`, `Initializing launch...`, "fa-rocket")
             var self = this
             let callback = function() {
-
               self.spaceship.isMoving = false
               self.player.isLanded = false
               self.player.isOrbiting = true
@@ -103,44 +100,30 @@ class Game {
                 self.jumbotron.description = self.astroObject.description
               }
             }
-            var start = Date.now()
-            this.spaceship.travel.distance = 5000
-            var now = Date.now()
-            var lastTick = Date.now()
-            var tick = function() {
-              let progress = Date.now() - start
-              if (progress < self.spaceship.travel.distance) {
-                //consume fuel
-                now = Date.now()
-                self.spaceship.fuel.amount -= 1 / (1000 / (now - lastTick))
-                if (self.spaceship.fuel.amount <= 0) {
-                  self.spaceship.fuel.amount = 0
-                  return false
-                }
-                self.progressBar.percent = (progress / self.spaceship.travel.distance) * 100
-                self.spaceship.progress.travel = (progress / self.spaceship.travel.distance) * 100
-                lastTick = now
-                requestAnimationFrame(tick)
-              } else {
-                callback()
-                self.spaceship.progress.launch = 0
-                self.spaceship.progress.travel = 0
-                self.progressBar.percent = 0
+            var update = function() {
+              //consume fuel
+              self.spaceship.fuel.amount -= 1/60
+              if (self.spaceship.fuel.amount <= 0) {
+                self.spaceship.fuel.amount = 0
+                return false
               }
             }
-            requestAnimationFrame(tick)
+            this.progressBarAnimation(Date.now(), 5000, callback, update)
           } else {
             this.setAlert("alert-warning", `Not enough fuel for launch!`)
           }
         },
-        land: function(planet) {
+        land: function() {
           this.spaceship.isMoving = true
           this.player.isOrbiting = false
           this.spaceship.isOrbiting = false
           let areaId = Math.floor((Math.random() * this.astroObject.size - 1))
           this.player.address.push(areaId)
           this.spaceship.address.push(areaId)
-          this.area = this.astroObject.areas[areaId]
+          if(!this.planet.areas[areaId]) {
+            this.planet.areas[areaId] = new Area(this.starsystem.id, this.planet.id, areaId)
+          }
+          this.area = this.planet.areas[areaId]
           this.setAlert("alert-info", `Initializing landing procedure...`)
           this.jumbotron.image = "img/atmosphere-entry.gif"
           var self = this
@@ -350,9 +333,16 @@ class Game {
           this.progressBarAnimation(Date.now(), duration, callback, update)
         },
         enterSpaceship: function() {
+          this.spaceship.engineNoise.volume = 0
           var self = this
           var duration = 1000
+          
+          let update = function() {
+            if(self.spaceship.engineNoise.volume < 1) 
+              self.spaceship.engineNoise.volume += 0.01
+          }
           var callback = function() {
+            
             self.player.ship = self.spaceship.id
             self.jumbotron.image = "img/spaceship-interior.3.gif"
             self.jumbotron.title = `Spaceship Interior`
@@ -365,10 +355,18 @@ class Game {
               self.jumbotron.description = `Your spaceship is ready for launch. Fuel level at ${((self.spaceship.fuel.amount/self.spaceship.fuel.max)*100).toFixed()} percent.`
             }
           }
-          this.progressBarAnimation(Date.now(),duration,callback)
+          this.progressBarAnimation(Date.now(),duration,callback, update)
         },
         exitSpaceship: function() {
           var self = this
+          let update = function(){
+            if(self.spaceship.engineNoise.volume > 0.01) {
+              self.spaceship.engineNoise.volume -= 0.01
+            } else {
+              self.spaceship.engineNoise.volume = 0
+            }
+              
+          }
           var callback = function() {
             self.player.ship = null
             self.spaceship.progress.exit = 0
@@ -378,7 +376,7 @@ class Game {
             self.jumbotron.title = self.area.title
             self.jumbotron.description = self.area.description
           }
-          this.progressBarAnimation(Date.now(),1000, callback)
+          this.progressBarAnimation(Date.now(),1000, callback, update)
         },
         startMiningCarbon: function() {
           this.miningCarbon = true
@@ -455,6 +453,22 @@ class Game {
 
           } else {
             this.setAlert("alert-warning", `Could not craft fuel. Make sure you have carbon and your fuel tank is not already full.`)
+          }
+        },
+        craftAntiMatterFuel() {
+          if (this.player.inventory.minerals >= 10 && this.spaceship.fuel.antimatter.amount < this.spaceship.fuel.antimatter.max) {
+            var self = this
+            this.busy = true
+            var vehicle = this.spaceship
+            this.progressBarAnimation(Date.now(), 5000, function() {
+              self.player.inventory.minerals -= 10
+              self.player.inventory.amount -= 10
+              vehicle.fuel.antimatter.amount++
+              self.setAlert("alert-success", `You crafted 1 anti-matter fuel from 10 minerals`)
+              self.busy = false
+            })
+          } else {
+            this.setAlert("alert-warning", `Could not craft fuel. Make sure you have enough minerals and your fuel tank is not already full.`,"fa-gas-pump")
           }
         },
         craftRover() {
@@ -541,12 +555,19 @@ class Game {
           this.isGameover = true
         },
         save(data) {
-          localStorage.setItem("autostarr", JSON.stringify(data))
+          var self = this
+          this.setAlert("alert-warning",`Do not turn your console off while saving in progress.`,"fa-disk")
+          this.progressBarAnimation(Date.now(), 3000, function(){
+            self.setAlert("alert-success", `Save complete! :)`, "fa-disk")
+            localStorage.setItem("autostarr", JSON.stringify(data))
+          })
+          
         },
         reset() {
           //Initialize game
           let starId = 3
-          this.starsystem = new StarSystem(starId)
+          this.stars[starId] = new StarSystem(starId)
+          this.starsystem = this.stars[starId]
           let astroId = Math.floor((Math.random() * this.starsystem.astronomicalObjects.length))
           if(astroId === 0) {
             astroId = 1
@@ -562,6 +583,8 @@ class Game {
           this.rover = new Rover(starId, astroId, areaId)
           this.spaceship = new SpaceShip(1, starId, astroId, areaId)
           this.spaceship.travel.targetPlanet = this.astroObject
+          this.spaceship.engineNoise.volume = 0
+          this.spaceship.engineNoise.play()
           this.player.starDistance = this.astroObject.starDistance
           var self = this
           //preload images
@@ -619,6 +642,46 @@ class Game {
             this[to].inventory[item]++
             this[to].inventory.amount++
           }
+        },
+        starNeighborName(direction){
+          let id = this.starsystem.id + direction
+          let star = new StarSystem(id)
+          return star.name
+        },
+        travelToStar(direction){
+          if(this.spaceship.fuel.antimatter.amount >= 50) {
+            this.spaceship.isMoving = true
+            let id = this.starsystem.id + direction
+            let star = this.stars[id]
+            if(star){
+              this.starsystem = star
+            } else {
+              star = new StarSystem(id)
+              this.starsystem = star
+            }
+            this.jumbotron.image = "img/warp.gif"
+            this.jumbotron.title = `Destination System: ${this.starsystem.name}`
+            this.jumbotron.description = `Traveling to ${this.starsystem.name}...`
+            var self = this
+            let update = function(){
+//               self.spaceship.fuel.antimatter.amount -= 1/60
+            }
+            let callback = function(){
+              self.spaceship.isMoving = false
+              self.spaceship.fuel.antimatter.amount -= 50
+              self.astroObject = self.starsystem.astronomicalObjects[0]
+              self.setAlert("alert-success", `Success! You've arrived at ${self.starsystem.name}!`, "fa-sun")
+              self.spaceship.address[0] = id
+              self.player.address[0] = id
+              self.jumbotron.image = "img/sun.jpg"
+              self.jumbotron.title = self.starsystem.astronomicalObjects[0].name
+              self.jumbotron.description = self.starsystem.astronomicalObjects[0].description
+            }
+            this.progressBarAnimation(Date.now(), 60000, callback, update)
+          } else {
+            this.setAlert("alert-warning", `Not enough antimatter to travel neighboring star. Use minerals to craft at least 50 antimatter fuel at the star.`, "fa-atom")
+          }
+          
         }
       }
     }

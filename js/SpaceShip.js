@@ -5,10 +5,14 @@ class SpaceShip{
 	  this.pilot=null
 	  this.fuel = {
       amount: 0,
-      max: 1000
+      max: 100,
+      antimatter: {
+        max: 100,
+        amount: 0
+      }
     }
     this.inventory = {
-      max: 10000,
+      max: 1000,
       amount: 0,
       carbon: 0,
       minerals: 0
@@ -31,6 +35,13 @@ class SpaceShip{
 	    this.area = this.address[2]
 	  }
     this.active = null
+    let engineNoise = new Audio()
+    engineNoise.src = "audio/spaceship.mp3"
+    this.engineNoise = engineNoise
+    this.engineNoise.loop = true
+    this.landingSound = new Audio()
+    this.landingSound.src = "audio/landing.mp3"
+    
 	}
 	enter(player){
 	  this.pilot=player.id

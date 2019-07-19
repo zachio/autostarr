@@ -3,11 +3,11 @@ class StarSystem {
 		this.id = id
 		this.address=[id]
     this.seed = id
-		this.name = `The ${this.nameStar()} System`
+		this.name = this.nameStar()
     this.planetTotal = Math.between(2,6,this.seed++)
     this.planets = []
     this.astronomicalObjects = []
-    this.astronomicalObjects.push(new Star([id,0]))
+    this.astronomicalObjects.push(new Star(id, this.name))
     for(var i=0; i < this.planetTotal; i++) {
       let planet = new Planet(id, i+1)
       this.planets.push(planet)

@@ -8,7 +8,7 @@ class Rover {
     this.speed = 3
     this.player = null
     this.inventory = {
-      max: 1000,
+      max: 500,
       amount: 0,
       carbon: 0,
       minerals: 0

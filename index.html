@@ -10,7 +10,7 @@
     <title>AutoStarr</title>
 
     <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/darkly.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.css" integrity="sha256-39jKbsb/ty7s7+4WzbtELS4vq9udJ+MDjGTD5mtxHZ0=" crossorigin="anonymous" />
 
     <!-- Custom styles for this template -->
@@ -23,7 +23,7 @@
     
       <div class="container">
         <!-- Navigation -->
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
           <div class="container">
             <a class="navbar-brand" href="#"><i class="fas fa-sun"></i> AutoStarr v.{{ version }}</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,9 +54,9 @@
           <div class="mb-4 col-md-8">      
             <div class="card">
               <div class="card-img-top" :style="{backgroundImage : 'url('+jumbotron.image+')'}">
-                <div class="alert text-white bg-dark" role="alert">
-                  <i class="fa fa-rocket" v-if="spaceship.address[2] === player.address[2]"></i> 
-                  <i class="fa fa-truck-pickup" v-if="isRoverParked()"></i> 
+                <div class="alert" role="alert">
+                  <i class="fa fa-rocket mr-2" v-if="spaceship.address[2] === player.address[2]"></i> 
+                  <i class="fa fa-truck-pickup" v-if="isRoverParked() || player.rover"></i> 
                 </div>
               </div> 
               <div class="card-body" v-if="!isLoading">
@@ -108,63 +108,65 @@
           <div class="col-md-4 mb-5">
             
             <!-- Inventory section -->
-            <div class="mb-2">
-              <h5><i class="fas fa-user-astronaut"></i> Player</h5>
-              <div class="list-group mb-2">
-                <li class="list-group-item list-group-item-warning">
-                  <h6 class="mb-1"><i class="fas fa-bolt"></i> Energy <span class="badge float-right">{{player.energy.amount.toFixed()}}/{{player.energy.max}}</span></h6>
-                  <div class="progress">
-                    <div class="progress-bar bg-warning" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" :style="{width: (player.energy.amount/player.energy.max)*100 +'%'}"></div>
-                  </div>
-                </li>
-                <li class="list-group-item list-group-item-primary">
-                  <h6 class="mb-1"><i class="fas fa-box"></i> Storage <span class="badge float-right">{{player.inventory.amount.toFixed()}}/{{player.inventory.max}}</span></h6>
-                  <div class="progress">
-                    <div class="progress-bar bg-primary" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" :style="{width: (player.inventory.amount/player.inventory.max)*100 +'%'}"></div>
-                  </div>
-                </li>
-                <li class="list-group-item list-group-item-success" v-if="player.inventory.carbon">
-                  <h6 class="mb-1"><i class="fas fa-tree"></i> Carbon 
-                    <span class="badge float-right badge-success ml-2">{{player.inventory.carbon.toFixed()}}</span>
-                    <i class="fas fa-trash float-right ml-2" @click="removeCarbon()" :disabled="isGameover"></i>
-                    <i class="fas fa-truck-pickup float-right ml-2" @click="moveInventory('carbon','player','rover')" :disabled="isGameover" v-if="player.rover"></i>
-                    <i class="fas fa-rocket float-right ml-2" @click="moveInventory('carbon','player','spaceship')" :disabled="isGameover" v-if="player.ship"></i>
-                  </h6>
-                </li>
-                <li class="list-group-item list-group-item-dark" v-if="player.inventory.minerals">
-                  <h6 class="mb-1"><i class="fas fa-mountain"></i> Minerals 
-                    <span class="badge float-right badge-dark ml-2">{{player.inventory.minerals.toFixed()}}</span>
-                    <i class="fas fa-trash float-right ml-2"@click="removeMinerals()" :disabled="isGameover"></i>
-                    <i class="fas fa-truck-pickup float-right ml-2" @click="moveInventory('minerals','player','rover')" :disabled="isGameover" v-if="player.rover"></i>
-                    <i class="fas fa-rocket float-right ml-2" @click="moveInventory('minerals','player','spaceship')" :disabled="isGameover" v-if="player.ship"></i>
-                  </h6>
-                </li>
-              </div>
+            <div class="card mb-3">
+              <h5 class="card-header"><i class="fas fa-user-astronaut"></i> Player</h5>
+              
+                <div class="list-group list-group-flush">
+                  <li class="list-group-item">
+                    <h6 class="mb-1"><i class="fas fa-bolt"></i> Energy <span class="badge float-right">{{player.energy.amount.toFixed()}}/{{player.energy.max}}</span></h6>
+                    <div class="progress">
+                      <div class="progress-bar bg-warning" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" :style="{width: (player.energy.amount/player.energy.max)*100 +'%'}"></div>
+                    </div>
+                  </li>
+                  <li class="list-group-item">
+                    <h6 class="mb-1"><i class="fas fa-box"></i> Storage <span class="badge float-right">{{player.inventory.amount.toFixed()}}/{{player.inventory.max}}</span></h6>
+                    <div class="progress">
+                      <div class="progress-bar bg-primary" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" :style="{width: (player.inventory.amount/player.inventory.max)*100 +'%'}"></div>
+                    </div>
+                  </li>
+                  <li class="list-group-item" v-if="player.inventory.carbon">
+                    <h6 class="mb-1"><i class="fas fa-tree"></i> Carbon 
+                      <span class="badge float-right badge-success ml-2">{{player.inventory.carbon.toFixed()}}</span>
+                      <i class="fas fa-trash float-right ml-2" @click="removeCarbon()" :disabled="isGameover"></i>
+                      <i class="fas fa-truck-pickup float-right ml-2" @click="moveInventory('carbon','player','rover')" :disabled="isGameover" v-if="player.rover"></i>
+                      <i class="fas fa-rocket float-right ml-2" @click="moveInventory('carbon','player','spaceship')" :disabled="isGameover" v-if="player.ship"></i>
+                    </h6>
+                  </li>
+                  <li class="list-group-item" v-if="player.inventory.minerals">
+                    <h6 class="mb-1"><i class="fas fa-mountain"></i> Minerals 
+                      <span class="badge float-right badge-dark ml-2">{{player.inventory.minerals.toFixed()}}</span>
+                      <i class="fas fa-trash float-right ml-2"@click="removeMinerals()" :disabled="isGameover"></i>
+                      <i class="fas fa-truck-pickup float-right ml-2" @click="moveInventory('minerals','player','rover')" :disabled="isGameover" v-if="player.rover"></i>
+                      <i class="fas fa-rocket float-right ml-2" @click="moveInventory('minerals','player','spaceship')" :disabled="isGameover" v-if="player.ship"></i>
+                    </h6>
+                  </li>
+                </div>
+
             </div>
             
-            <div v-if="player.rover" class="mb-2">
-              <h5><i class="fas fa-truck-pickup"></i> Rover</h5>
-              <div class="list-group mb-2">
-                <li class="list-group-item list-group-item-danger">
+            <div v-if="player.rover" class="card mb-3">
+              <h5 class="card-header"><i class="fas fa-truck-pickup"></i> Rover</h5>
+              <div class="list-group list-group-flush">
+                <li class="list-group-item">
                   <h6 class="mb-1"><i class="fas fa-gas-pump"></i> Fuel <span class="badge float-right">{{rover.fuel.amount.toFixed()}}/{{rover.fuel.max}}</span></h6>
                   <div class="progress">
                     <div class="progress-bar bg-danger" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" :style="{width: (rover.fuel.amount/rover.fuel.max)*100 +'%'}"></div>
                   </div>
                 </li>
-                <li class="list-group-item list-group-item-primary">
+                <li class="list-group-item">
                   <h6 class="mb-1"><i class="fas fa-box"></i> Storage <span class="badge float-right">{{rover.inventory.amount.toFixed()}}/{{rover.inventory.max}}</span></h6>
                   <div class="progress">
                     <div class="progress-bar bg-primary" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" :style="{width: (rover.inventory.amount/rover.inventory.max)*100 +'%'}"></div>
                   </div>
                 </li>
-                <li class="list-group-item list-group-item-success" v-if="rover.inventory.carbon">
+                <li class="list-group-item" v-if="rover.inventory.carbon">
                   <h6 class="mb-1"><i class="fas fa-tree"></i> Carbon   
                     <span class="badge float-right badge-success ml-2">{{rover.inventory.carbon.toFixed()}}</span>
                     <i class="fas fa-trash float-right ml-2" @click="removeCarbon()" :disabled="isGameover"></i>
                     <i class="fas fa-user-astronaut float-right ml-2" @click="moveInventory('carbon','rover','player')" :disabled="isGameover"></i>
                   </h6>
                 </li>
-                <li class="list-group-item list-group-item-dark" v-if="rover.inventory.minerals">
+                <li class="list-group-item" v-if="rover.inventory.minerals">
                   <h6 class="mb-1">
                     <i class="fas fa-mountain"></i> Minerals 
                     <span class="badge float-right badge-dark ml-2">{{rover.inventory.minerals.toFixed()}}</span>
@@ -175,35 +177,35 @@
               </div>
             </div>
             
-            <div v-if="player.ship" class="mb-2">
-              <h5><i class="fas fa-rocket"></i> Spaceship</h5>
-              <div class="list-group">
-                <li class="list-group-item list-group-item-danger">
+            <div v-if="player.ship" class="card mb-3">
+              <h5 class="card-header"><i class="fas fa-rocket"></i> Spaceship</h5>
+              <div class="list-group list-group-flush">
+                <li class="list-group-item">
                   <h6 class="mb-1"><i class="fas fa-gas-pump"></i> Fuel <span class="badge float-right">{{spaceship.fuel.amount.toFixed()}}/{{spaceship.fuel.max}}</span></h6>
                   <div class="progress">
                     <div class="progress-bar bg-danger" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" :style="{width: (spaceship.fuel.amount/spaceship.fuel.max)*100 +'%'}"></div>
                   </div>
                 </li>
-                <li class="list-group-item list-group-item-info">
+                <li class="list-group-item">
                   <h6 class="mb-1"><i class="fas fa-gas-pump"></i> Anti-matter Fuel <span class="badge float-right">{{spaceship.fuel.antimatter.amount.toFixed()}}/{{spaceship.fuel.antimatter.max}}</span></h6>
                   <div class="progress">
                     <div class="progress-bar bg-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" :style="{width: (spaceship.fuel.antimatter.amount/spaceship.fuel.antimatter.max)*100 +'%'}"></div>
                   </div>
                 </li>
-                <li class="list-group-item list-group-item-primary">
+                <li class="list-group-item">
                   <h6 class="mb-1"><i class="fas fa-box"></i> Storage <span class="badge float-right">{{spaceship.inventory.amount.toFixed()}}/{{spaceship.inventory.max}}</span></h6>
                   <div class="progress">
                     <div class="progress-bar bg-primary" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" :style="{width: (spaceship.inventory.amount/spaceship.inventory.max)*100 +'%'}"></div>
                   </div>
                 </li>
-                <li class="list-group-item list-group-item-success" v-if="spaceship.inventory.carbon">
+                <li class="list-group-item" v-if="spaceship.inventory.carbon">
                   <h6 class="mb-1"><i class="fas fa-tree"></i> Carbon 
                     <span class="badge float-right badge-success ml-2">{{spaceship.inventory.carbon.toFixed()}}</span>
                     <i class="fas fa-trash float-right ml-2" @click="removeCarbon()" :disabled="isGameover"></i>
                     <i class="fas fa-user-astronaut float-right ml-2" @click="moveInventory('carbon','spaceship','player')" :disabled="isGameover"></i>
                   </h6>
                 </li>
-                <li class="list-group-item list-group-item-dark" v-if="spaceship.inventory.minerals">
+                <li class="list-group-item" v-if="spaceship.inventory.minerals">
                   <h6 class="mb-1">
                     <i class="fas fa-mountain"></i> Minerals 
                     <span class="badge float-right badge-dark ml-2">{{spaceship.inventory.minerals.toFixed()}}</span>
@@ -220,20 +222,23 @@
                 <span class="badge badge-warning float-right">{{Math.abs((astroObject.starDistance - player.starDistance)/1000).toFixed(1)}} <i class="fas fa-gas-pump"></i></span>
               </button>
             </div>
-            <h5 v-if="area.scanned && !player.ship">Natural Resources</h5>
-            <div class="list-group mb-3">
-              <button type="button" class="list-group-item list-group-item-action list-group-item-success" v-if="area.scanned && !player.isMoving && !player.ship" @click="clickMineCarbon()" :disabled="isGameover">
-                  <h6 class="mb-0"><i class="fas fa-tree"></i> Mine Carbon {{area.carbon.amount.toFixed()}} / {{area.carbon.max}}</h6>
-                  <div class="progress">
-                    <div class="progress-bar progress-bar-striped bg-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" :style="{width: (area.carbon.amount/area.carbon.max)*100 +'%'}"></div>
-                  </div>
-              </button>
-              <button type="button" class="list-group-item list-group-item-action list-group-item-dark" v-if="area.scanned && !player.isMoving && !player.ship" @click="mineMinerals()" :disabled="isGameover">
-                    <h6 class="mb-0"><i class="fas fa-tree"></i> Mine Minerals {{area.minerals.amount.toFixed()}} / {{area.minerals.max}}</h6>
+            
+            <div v-if="area.scanned && !player.ship" class="card mb-3">
+              <h5 class="card-header">Natural Resources</h5>
+              <div class="list-group list-group-flush">
+                <button type="button" class="list-group-item list-group-item-success" v-if="area.scanned && !player.isMoving && !player.ship" @click="clickMineCarbon()" :disabled="isGameover">
+                    <h6 class="mb-0"><i class="fas fa-tree"></i> Mine Carbon {{area.carbon.amount.toFixed()}} / {{area.carbon.max}}</h6>
                     <div class="progress">
-                      <div class="progress-bar progress-bar-striped bg-dark" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" :style="{width: (area.minerals.amount/area.minerals.max)*100 +'%'}"></div>
+                      <div class="progress-bar progress-bar-striped bg-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" :style="{width: (area.carbon.amount/area.carbon.max)*100 +'%'}"></div>
                     </div>
                 </button>
+                <button type="button" class="list-group-item list-group-item-dark" v-if="area.scanned && !player.isMoving && !player.ship" @click="mineMinerals()" :disabled="isGameover">
+                      <h6 class="mb-0"><i class="fas fa-mountain"></i> Mine Minerals {{area.minerals.amount.toFixed()}} / {{area.minerals.max}}</h6>
+                      <div class="progress">
+                        <div class="progress-bar progress-bar-striped bg-dark" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" :style="{width: (area.minerals.amount/area.minerals.max)*100 +'%'}"></div>
+                      </div>
+                  </button>
+              </div>
             </div>
 <!--             <div class="list-group">
               <button type="button" class="list-group-item list-group-item-action list-group-item-primary" @click="save(_data)">

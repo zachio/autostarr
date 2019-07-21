@@ -1,5 +1,10 @@
+@import url('https://fonts.googleapis.com/css?family=VT323&display=swap');
+
 body {
   padding-top: 4.5rem;
+/*   background-image:url(../img/starring.png); */
+  background-position: fixed;
+  font-family: 'VT323', monospace;
 }
 [v-cloak] {display: none}
 .card {animation: fadein .5s}
@@ -19,4 +24,7 @@ body {
 .jumbotron {
     background-size: cover;
     background-position: center;
+}
+.card-img-top .fa {
+  text-shadow: 0 0 5px black;
 }

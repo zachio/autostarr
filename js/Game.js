@@ -7,7 +7,7 @@ class Game {
     } else {
       data = {
         isRegistered: false,
-        version: `37 Interstellar Travel Update`,
+        version: `38 Improved Rover Update`,
         autoSave: false,
         isLoading: true,
         loadingImage: "./img/loading.gif",
@@ -72,6 +72,9 @@ class Game {
           requestAnimationFrame(tick)
         }
         requestAnimationFrame(tick)
+      },
+      watch: {
+        
       },
       methods: {
         launch: function() {
@@ -248,8 +251,8 @@ class Game {
             self.area.scannedPercent = 0
             self.progressBar.percent = 0
             self.setAlert(`alert-success`, `Scan complete! ${self.area.carbon.amount} carbon, ${self.area.minerals.amount} minerals`)
-            self.area.title = `Sector ${self.area.id}`
-            self.area.description = `The data your scanner revealed this area had ${area.carbon.amount.toFixed()} carbon and ${area.minerals.amount.toFixed()} minerals. Downloaded the data to the maps and marked this area as Sector ${area.id}.`
+            self.area.title = `${self.planet.name} ${self.area.id}`
+            self.area.description = `The data your scanner revealed this area had ${area.carbon.amount.toFixed()} carbon and ${area.minerals.amount.toFixed()} minerals. Downloaded the data to the maps and marked this area as ${self.area.title}.`
             self.jumbotron.title = self.area.title
             self.jumbotron.description = self.area.description
             if (self.spaceship.address[2] === self.area.id) {
@@ -291,9 +294,9 @@ class Game {
           player.isMoving = true
           let targetArea = area.id + direction
           if (targetArea < 0) {
-            targetArea = planet.areas.length - 1
+            targetArea = planet.size - 1
           }
-          if (targetArea >= planet.areas.length) {
+          if (targetArea >= planet.size) {
             targetArea = 0
           }
           var callback = function() {
@@ -302,9 +305,11 @@ class Game {
               self.rover.address[2] = targetArea
             if(planet.areas[targetArea]) {
                 self.area = planet.areas[targetArea]
+                self.setAlert("alert-info", `You arrived at ${self.area.title}`, "fa-truck-pickup")
                } else {
                  planet.areas[targetArea] = new Area(self.starsystem.id, planet.id, targetArea)
                  self.area = planet.areas[targetArea]
+                 self.setAlert("alert-info", `You arrived at an unknown area`, "fa-truck-pickup")
                }
             if (targetArea === self.spaceship.address[2]) {
               self.jumbotron.image = "img/spaceship-landed.jpg"
@@ -322,6 +327,9 @@ class Game {
           var update = function() {
             if(self.player.rover) {
               self.rover.fuel.amount -= 1/60
+              if (self.rover.fuel.amount <= 0) {
+                self.rover.fuel = 0
+              }
             } else {
               self.player.energy.amount -= 1/60 
               if (self.player.energy.amount <= 0) {
@@ -523,6 +531,7 @@ class Game {
             self.exploreIcon = "fa-hiking"
             self.progressBar.percent = 0
             self.setAlert("alert-info","Exited rover")
+            self.area.rovers.push(self.rover)
           })
         },
         isRoverParked() {

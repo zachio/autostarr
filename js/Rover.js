@@ -5,7 +5,7 @@ class Rover {
       amount: 0,
       max: 100
     }
-    this.speed = 3
+    this.speed = 10
     this.player = null
     this.inventory = {
       max: 500,
@@ -14,5 +14,6 @@ class Rover {
       minerals: 0
     },
     this.isCrafted = false
+    this.name = `Rover 1`
   }
 }

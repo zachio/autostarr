@@ -28,6 +28,7 @@ class Area{
       max: minerals,
 		  amount: minerals
     }
+    this.rovers = []
 		return this
 	}
 	removeResource(id){

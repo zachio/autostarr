@@ -7,7 +7,7 @@ class Game {
     } else {
       data = {
         isRegistered: false,
-        version: `38 Improved Rover Update`,
+        version: `39`,
         autoSave: false,
         isLoading: true,
         loadingImage: "./img/loading.gif",
@@ -46,6 +46,20 @@ class Game {
         rover: null,
         exploreIcon: "fa-hiking",
         stars: {},
+        screens: {
+          explore: false,
+          exploreActive: null,
+          crafting: false,
+          craftingActive: null,
+          player: false,
+          playerActive: null,
+          inventory: false,
+          inventoryActive: null,
+          spaceship: false,
+          spaceshipActive: null,
+          rover: false,
+          roverActive: null
+        }
       }
     }
     this.state = {
@@ -56,6 +70,8 @@ class Game {
         if (!localStorage.getItem("autostarr")) {
           this.reset()
         }
+        this.screens.explore = true
+        this.screens.exploreActive = "active"
         var self = this
         this.lastTick = Date.now()
         var now = Date.now()
@@ -271,7 +287,7 @@ class Game {
           }
           this.progressBarAnimation(start,duration,callback, update)
         },
-        explore: function(direction) {
+        exploreArea: function(direction) {
           //calculate trip duration and check rover for fuel
           var duration = 5000
           if(this.player.rover) {
@@ -319,7 +335,7 @@ class Game {
             self.jumbotron.title = self.area.title
             self.jumbotron.description = self.area.description
             if (!self.area.discovered) {
-              self.setAlert("alert-success", `You entered an new area.`)
+              self.setAlert("alert-success", `You entered an undiscovered area.`)
               area.discovered = true
             }
             self.player.isMoving = false
@@ -481,13 +497,14 @@ class Game {
         },
         craftRover() {
           var self = this
-          if(this.player.inventory.minerals >= 100 && !this.rover.isCrafted) {
+          if(this.player.inventory.minerals >= 100) {
             this.setAlert("alert-info", `Crafting rover...`, "fa-truck")
             this.progressBarAnimation(Date.now(), 10000, function() {
               self.player.inventory.minerals -= 100
               self.player.inventory.amount -= 100
-              self.rover.isCrafted = true
               self.setAlert("alert-success", `Successfully crafted a rover. Enter the rover and explore to travel twice as fast.`,'fa-truck-pickup')
+              let address = self.player.address
+              self.area.rovers.push(new Rover(address[0], address[1], address[2]))
             }, function(){
               self.player.energy.amount -= 1/60
               if(self.player.energy.amount <= 0) {
@@ -515,13 +532,16 @@ class Game {
             this.setAlert("alert-warning", `Could not craft fuel. Make sure you have carbon and your fuel tank is not already full.`)
           }
         },
-        enterRover(){
+        enterRover(id){
           var self = this
           this.progressBarAnimation(Date.now(), 1000, function(){
             self.player.rover = true
             self.exploreIcon = "fa-truck-pickup"
             self.progressBar.percent = 0
             self.setAlert("alert-info","Entered the rover")
+            let i = id - 1
+            self.rover = self.area.rovers[i]
+            self.area.rovers.splice(i, 1)
           })
         },
         exitRover() {
@@ -533,16 +553,6 @@ class Game {
             self.setAlert("alert-info","Exited rover")
             self.area.rovers.push(self.rover)
           })
-        },
-        isRoverParked() {
-          if(this.rover.isCrafted) {
-            if(this.rover.address[2] == this.player.address[2] && !this.player.ship && !this.player.rover) {
-              return true
-            }
-            return false
-          } else {
-            return false
-          }
         },
         roverFuelPercent(){
           if(this.rover) {
@@ -577,11 +587,8 @@ class Game {
           let starId = 3
           this.stars[starId] = new StarSystem(starId)
           this.starsystem = this.stars[starId]
-          let astroId = Math.floor((Math.random() * this.starsystem.astronomicalObjects.length))
-          if(astroId === 0) {
-            astroId = 1
-          }
-          this.astroObject = this.starsystem.astronomicalObjects[astroId]
+          let astroId = Math.floor((Math.random() * this.starsystem.planets.length))
+          this.astroObject = this.starsystem.planets[astroId]
           this.planet = this.astroObject
           this.targetPlanet = astroId
           this.currentOrbit = astroId
@@ -689,9 +696,44 @@ class Game {
             this.progressBarAnimation(Date.now(), 60000, callback, update)
           } else {
             this.setAlert("alert-warning", `Not enough antimatter to travel neighboring star. Use minerals to craft at least 50 antimatter fuel at the star.`, "fa-atom")
+          }  
+        },
+        exploreScreen: function(){
+          this.resetScreen()
+          this.screens.explore = true
+          this.screens.exploreActive = "active"
+        },
+        craftingScreen: function(){
+          this.resetScreen()
+          this.screens.crafting = true
+          this.screens.craftingActive = "active"
+        },
+        playerScreen: function(){
+          this.resetScreen()
+          this.screens.player = true
+          this.screens.playerActive = "active"
+        },
+        inventoryScreen: function(){
+          this.resetScreen()
+          this.screens.inventory = true
+          this.screens.inventoryActive = "active"
+        },
+        spaceshipScreen: function(){
+          this.resetScreen()
+          this.screens.spaceship = true
+          this.screens.spaceshipActive = "active"
+        },
+        roverScreen: function(){
+          this.resetScreen()
+          this.screens.rover = true
+          this.screens.roverActive = "active"
+        },
+        resetScreen(){
+          for(var screen in this.screens) {
+            screen = false
           }
-          
         }
+        
       }
     }
     this.vue = new Vue(this.state)

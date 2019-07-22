@@ -2,3 +2,5 @@
 sftp.json
 ./home
 logs/
+/vendor/
+node_modules/

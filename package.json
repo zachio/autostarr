@@ -1,0 +1,57 @@
+{
+  "name": "autostarr-web-zach",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "@progress/kendo-gantt-vue-wrapper": "^2019.1.220",
+    "@progress/kendo-theme-default": "^3.4.0",
+    "@progress/kendo-ui": "^2019.1.403",
+    "axios": "^0.18.1",
+    "babel-loader": "^8.0.5",
+    "bootstrap": "^4.3.1",
+    "bootstrap-vue": "^2.0.0-rc.25",
+    "chart.js": "^2.7.3",
+    "cross-env": "^5.2.0",
+    "css-loader": "^2.1.1",
+    "datatables.net": "^1.10.19",
+    "fullcalendar": "^3.10.0",
+    "jquery": "^3.3.1",
+    "jquery-ui": "^1.12.1",
+    "js-base64": "^2.5.1",
+    "laravel-mix": "^4.0.15",
+    "lodash": "^4.17.11",
+    "moment-timezone": "^0.5.23",
+    "perfect-scrollbar": "^1.4.0",
+    "resolve-url-loader": "^2.3.1",
+    "sass": "^1.17.2",
+    "sass-loader": "^7.1.0",
+    "vue": "^2.6.10",
+    "vue-chartjs": "^3.4.0",
+    "vue-loader": "^15.7.0",
+    "vue-router": "^3.0.2",
+    "vue-select": "^2.6.0",
+    "vue-style-loader": "^4.1.2",
+    "vue-template-compiler": "^2.6.8",
+    "vue-timeago": "^5.0.0",
+    "vue-toasted": "^1.1.27",
+    "webpack": "^4.29.6"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "dev": "NODE_ENV=development webpack --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "watch": "NODE_ENV=development webpack --watch --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "hot": "NODE_ENV=development webpack-dev-server --inline --hot --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "production": "NODE_ENV=production webpack --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zachdyer/autostarr.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zachdyer/autostarr/issues"
+  },
+  "homepage": "https://github.com/zachdyer/autostarr#readme"
+}

@@ -1,0 +1,21 @@
+{
+    "name": "zachdyer/autostarr-web-zach",
+    "authors": [
+        {
+            "name": "zachio",
+            "email": "zachdyer@gmail.com"
+        },
+        {
+            "name": "404",
+            "email": "da404lewzer@gmail.com"
+        }
+    ],
+    "require": {
+        "klein/klein": "^2.1",
+        "nesbot/carbon": "^2.20",
+        "vlucas/pikirasa": "^1.0",
+        "paragonie/halite": "^3.4",
+        "sergeytsalkov/meekrodb": "^2.3",
+        "aws/aws-sdk-php": "^3.107"
+    }
+}

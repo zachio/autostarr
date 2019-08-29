@@ -20,19 +20,19 @@ autostarr.vue.data.player = {
       name: "Carbon",
       item: "carbon",
       icon: "fa-tree",
-      amount: 50
+      amount: 0
     },
     minerals: {
       name: "Minerals",
       item: "minerals",
       icon: "fa-mountain",
-      amount: 49,
+      amount: 0,
     },
     rover: {
       name: "Rover",
       item: "rover",
       icon: "fa-truck-pickup",
-      amount: 1,
+      amount: 0,
       install: "roverInstall"
     },
   },

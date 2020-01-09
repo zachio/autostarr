@@ -28,26 +28,27 @@ class Inventory {
 }
 
 autostarr.vue.methods.inventoryMove = function(item, from, to) {
-  if(this[from].inventory[item].amount >= 1 && this[to].storage.amount < this[to].storage.max) {
-    this[from].inventory[item].amount--
-    this[from].storage.amount--
-    if(typeof this[to].inventory[item] === "undefined") {
-       this[to].inventory[item] = {
-         name: this[from].inventory[item].name,
+  if(this.autostarr[from].inventory[item].amount >= 1 && this.autostarr[to].storage.amount < this.autostarr[to].storage.max) {
+    this.autostarr[from].inventory[item].amount--
+    this.autostarr[from].storage.amount--
+    if(typeof this.autostarr[to].inventory[item] === "undefined") {
+       this.autostarr[to].inventory[item] = {
+         name: this.autostarr[from].inventory[item].name,
          item: item,
          amount: 0,
-         icon: this[from].inventory[item].icon,
-         install: (this[from].inventory[item].install) ? this[from].inventory[item].install : false,
+         icon: this.autostarr[from].inventory[item].icon,
+         install: (this.autostarr[from].inventory[item].install) ? this.autostarr[from].inventory[item].install : false,
          storage: to
        }
     }
-    this[to].inventory[item].amount++
-    this[to].inventory[item].storage = to
-    this[to].storage.amount++
+    this.autostarr[to].inventory[item].amount++
+    this.autostarr[to].inventory[item].storage = to
+    this.autostarr[to].storage.amount++
   }
 }
 
 autostarr.vue.methods.inventoryTrash = function(item, from) {
-  this[from].inventory[item].amount--
+  this.autostarr[from].inventory[item].amount--
+  this.autostarr[from].storage.amount--
 }
 

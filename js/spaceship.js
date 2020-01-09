@@ -5,11 +5,11 @@ class SpaceShip {
       this.address=[starId,planetId,areaId]
       this.pilot=null
       this.fuel = {
-        amount: 0,
+        amount: 100,
         max: 100,
         antimatter: {
           max: 100,
-          amount: 0
+          amount: 100
         }
       }
       this.storage = {
@@ -58,13 +58,13 @@ autostarr.spaceship = {
   engineNoise: new Audio(),
   craft: {
       antimatter: function() {
-        if (this.player.inventory.minerals >= 10 && this.spaceship.fuel.antimatter.amount < this.spaceship.fuel.antimatter.max) {
+        if (this.autostarr.explore.inventory.minerals >= 10 && this.autostarr.player.spaceship.fuel.antimatter.amount < this.autostarr.spaceship.fuel.antimatter.max) {
           var self = this
           this.busy = true
-          var vehicle = this.spaceship
+          var vehicle = this.autostarr.spaceship
           this.progressBarAnimation(Date.now(), 5000, function() {
-            self.player.inventory.minerals -= 10
-            self.player.inventory.amount -= 10
+            self.autostarr.player.inventory.minerals -= 10
+            self.autostarr.player.inventory.amount -= 10
             vehicle.fuel.antimatter.amount++
             self.setAlert("alert-success", `You crafted 1 anti-matter fuel from 10 minerals`)
             self.busy = false
@@ -78,7 +78,7 @@ autostarr.spaceship = {
 
 //Methods
 autostarr.vue.methods.spaceshipEnter = function() {
-  let spaceship = autostarr.spaceship
+  let spaceship = this.autostarr.spaceship
   spaceship.engineNoise.volume = 0
   var duration = 1000
 
@@ -88,24 +88,24 @@ autostarr.vue.methods.spaceshipEnter = function() {
   }
   let self = this
   var callback = function() {
-    self.player.ship = true
-    self.explore.jumbotron.image = "img/spaceship-interior.3.gif"
-    self.explore.jumbotron.title = `Spaceship Interior`
-    if (self.player.energy.amount < self.player.energy.max) {
+    self.autostarr.player.ship = true
+    self.autostarr.explore.jumbotron.image = "img/spaceship-interior.3.gif"
+    self.autostarr.explore.jumbotron.title = `Spaceship Interior`
+    if (self.autostarr.player.energy.amount < self.autostarr.player.energy.max) {
       self.exploreSetAlert("alert-info", `Wirelessly charging...`, "fa-bolt")
     }
-    if (self.spaceship.fuel.amount < 5) {
-      self.explore.jumbotron.description = `Your spaceship is low on fuel and not enough for launch. Fuel level at ${((self.spaceship.fuel.amount/self.spaceship.fuel.max)*100).toFixed()} percent. You can craft fuel from carbon. You can find carbon by scanning areas.`
+    if (self.autostarr.spaceship.fuel.amount < 5) {
+      self.autostarr.explore.jumbotron.description = `Your spaceship is low on fuel and not enough for launch. Fuel level at ${((self.autostarr.spaceship.fuel.amount/self.autostarr.spaceship.fuel.max)*100).toFixed()} percent. You can craft fuel from carbon. You can find carbon by scanning areas.`
     } else {
-      self.explore.jumbotron.description = `Your spaceship is ready for launch. Fuel level at ${((self.spaceship.fuel.amount/self.spaceship.fuel.max)*100).toFixed()} percent.`
+      self.autostarr.explore.jumbotron.description = `Your spaceship is ready for launch. Fuel level at ${((self.autostarr.spaceship.fuel.amount/self.autostarr.spaceship.fuel.max)*100).toFixed()} percent.`
     }
   }
   self.progressAnimation(Date.now(),duration,callback, update)
 }
 
 autostarr.vue.methods.spaceshipExit = function() {
-  let spaceship = autostarr.spaceship
-  let progress = autostarr.progress
+  let spaceship = this.autostarr.spaceship
+  let progress = this.autostarr.progress
   let self = this
   let update = function(){
     if(spaceship.engineNoise.volume > 0.01) {
@@ -116,23 +116,23 @@ autostarr.vue.methods.spaceshipExit = function() {
   }
  
   var callback = function() {
-    self.player.ship = null
+    self.autostarr.player.ship = null
     self.progress.percent = 0
     self.exploreSetAlert("alert-success", `You exited the ship.`)
-    self.explore.jumbotron.image = "img/spaceship-landed.jpg"
-    self.explore.jumbotron.title = self.area.title
-    self.explore.jumbotron.description = self.area.description
+    self.autostarr.explore.jumbotron.image = "img/spaceship-landed.jpg"
+    self.autostarr.explore.jumbotron.title = self.autostarr.area.title
+    self.autostarr.explore.jumbotron.description = self.autostarr.area.description
   }
   self.progressAnimation(Date.now(),1000, callback, update)
 }
 
 autostarr.vue.methods.spaceshipLaunch = function() {
-  let spaceship = this.spaceship
-  let player = this.player
-  let explore = this.explore
-  let planet = this.planet
-  let starsystem = this.starsystem
-  let progress = autostarr.progress
+  let spaceship = this.autostarr.spaceship
+  let player = this.autostarr.player
+  let explore = this.autostarr.explore
+  let planet = this.autostarr.planet
+  let starsystem = this.autostarr.starsystem
+  let progress = this.progress
   let self = this
   if (spaceship.fuel.amount >= 5) {
     spaceship.isMoving = true
@@ -175,12 +175,12 @@ autostarr.vue.methods.spaceshipLaunch = function() {
 }
 
 autostarr.vue.methods.spaceshipLand = function() {
-  let player = this.player
-  let planet = this.planet
-  let starsystem = this.starsystem
-  let explore = this.explore
-  let spaceship = this.spaceship
-  let progress = autostarr.progress
+  let player = this.autostarr.player
+  let planet = this.autostarr.planet
+  let starsystem = this.autostarr.starsystem
+  let explore = this.autostarr.explore
+  let spaceship = this.autostarr.spaceship
+  let progress = this.progress
   player.isMoving = true
   player.isOrbiting = false
   spaceship.isOrbiting = false
@@ -190,8 +190,7 @@ autostarr.vue.methods.spaceshipLand = function() {
   if(!planet.areas[areaId]) {
     planet.areas[areaId] = new Area(starsystem.id, planet.id, areaId)
   }
-  this.area = planet.areas[areaId]
-  console.log(spaceship.address, player.address, planet.areas[areaId], this.area)
+  this.autostarr.area = planet.areas[areaId]
   this.exploreSetAlert("alert-info", `Initializing landing procedure...`)
   explore.jumbotron.image = "img/atmosphere-entry.gif"
   var self = this
@@ -212,11 +211,11 @@ autostarr.vue.methods.spaceshipLand = function() {
 }
 
 autostarr.vue.methods.spaceshipScan = function() {
-    let player = this.player
-    let explore = this.explore
+    let player = this.autostarr.player
+    let explore = this.autostarr.explore
     let progress = this.progress
-    let starsystem = this.starsystem
-    let planet = this.planet
+    let starsystem = this.autostarr.starsystem
+    let planet = this.autostarr.planet
     var self = this
     let i = 0
     let astroObjectCount = starsystem.planets.length
@@ -235,34 +234,34 @@ autostarr.vue.methods.spaceshipScan = function() {
         player.scanner.percent,
         progress.percent = (i / astroObjectCount) * 100
         explore.jumbotron.title = `Orbiting ${planet.name}`
-        explore.jumbotron.description = planet.description
+        explore.jumbotron.description = `${planet.name} is a ${planet.color} planet in the The ${starsystem.name} System and has ${planet.size} areas to explore. It has ${planet.moons} moons and is ${planet.starDistance} distance units from it's host star.`
         starsystem.scanned = true
       }
     }, 500)
   }
 
 autostarr.vue.methods.spaceshipTravelStar = function(direction){
-  let spaceship = this.spaceship
-  let starsystem = this.starsystem
-  let explore = this.explore
-  let planet = this.planet
-  let player = this.player
-  let progress = autostarr.progress
+  let spaceship = this.autostarr.spaceship
+  let starsystem = this.autostarr.starsystem
+  let explore = this.autostarr.explore
+  let planet = this.autostarr.starsystem
+  let player = this.autostarr.player
+  let progress = this.progress
   if(spaceship.fuel.antimatter.amount >= 50) {
     spaceship.isMoving = true
     let id = starsystem.id + direction
-    let star = this.stars[id]
+    let star = this.autostarr.stars[id]
     if(!star){
       star = new StarSystem(id)
     } 
-    this.starsystem = star
+    this.autostarr.starsystem = star
     player.isOrbiting = false
     player.orbit = false
     spaceship.isMoving = true
-    this.exploreSetAlert("alert-info",`Anti-matter traveling to ${this.starsystem.name}`,'fa-rocket')
+    this.exploreSetAlert("alert-info",`Anti-matter traveling to ${this.autostarr.starsystem.name}`,'fa-rocket')
     explore.jumbotron.image = "img/warp.gif"
-    explore.jumbotron.title = `Destination System: ${this.starsystem.name}`
-    explore.jumbotron.description = `Traveling to ${this.starsystem.name}...`
+    explore.jumbotron.title = `Destination System: ${this.autostarr.starsystem.name}`
+    explore.jumbotron.description = `Traveling to ${this.autostarr.starsystem.name}...`
     var self = this
     let update = function(){
       spaceship.fuel.antimatter.amount -= 1/60
@@ -272,40 +271,42 @@ autostarr.vue.methods.spaceshipTravelStar = function(direction){
       }
     }
     let callback = function(){
-      planet = self.starsystem.planets[0]
-      self.planet = planet
+      planet = self.autostarr.starsystem.planets[0]
+      self.autostarr.planet = planet
       player.isOrbiting = true
       player.address = [id,0]
       player.starDistance = planet.starDistance
       player.orbit = 0
+      spaceship.travel.targetPlanet = 0
       spaceship.isMoving = false
       spaceship.starDistance = planet.starDistance
       spaceship.address = [id,0]
-      self.exploreSetAlert("alert-success", `Success! You've arrived at ${self.starsystem.name}!`, "fa-rocket")
-      explore.jumbotron.image = self.planet.image
-      explore.jumbotron.title = (self.planet.scanned) ? self.planet.name : `Unknown Planet`
-      explore.jumbotron.description = (self.planet.scanned) ? self.planet.description : `Orbitting an unknown planet.`
+      spaceship.target = self.autostarr.planet
+      self.exploreSetAlert("alert-success", `Success! You've arrived at ${self.autostarr.starsystem.name}!`, "fa-rocket")
+      explore.jumbotron.image = planet.image
+      explore.jumbotron.title = (self.autostarr.planet.scanned) ? self.planet.name : `Unknown Planet`
+      explore.jumbotron.description = (self.autostarr.planet.scanned) ? self.autostarr.planet.description : `Orbitting an unknown planet.`
     }
-    self.progressAnimation(Date.now(), 60000, callback, update)
+    self.progressAnimation(Date.now(), 1000, callback, update)
   } else {
-    this.exploreSetAlert("alert-warning", `Not enough antimatter to travel neighboring star. Use minerals to craft at least 50 antimatter fuel at the star.`, "fa-atom")
+    this.autostarr.planetSetAlert("alert-warning", `Not enough antimatter to travel neighboring star. Use minerals to craft at least 50 antimatter fuel at the star.`, "fa-atom")
   }  
 }
 
 autostarr.vue.methods.spaceshipTravelPlanet = function(planetId) {
-  let player = this.player
-  let explore = this.explore
-  let starsystem = this.starsystem
-  let spaceship = this.spaceship
-  let progress = autostarr.progress
-  let planet = this.planet
+  let player = this.autostarr.player
+  let explore = this.autostarr.explore
+  let starsystem = this.autostarr.starsystem
+  let spaceship = this.autostarr.spaceship
+  let progress = this.progress
+  let planet = this.autostarr.planet
   let targetPlanet = starsystem.planets[planetId]
   let self = this
-  this.spaceship.travel.targetPlanet = planetId
-  this.spaceship.direction = 1
-  console.log(targetPlanet, this.spaceship.travel.targetPlanet)
+  this.autostarr.spaceship.travel.targetPlanet = planetId
+  this.autostarr.spaceship.direction = 1
+  console.log(targetPlanet, this.autostarr.spaceship.travel.targetPlanet)
   if (targetPlanet.starDistance < player.starDistance) {
-    this.spaceship.direction = -1
+    this.autostarr.spaceship.direction = -1
   }
   player.orbit = null
   spaceship.isMoving = true
@@ -341,12 +342,12 @@ autostarr.vue.methods.spaceshipTravelPlanet = function(planetId) {
       requestAnimationFrame(tick)
     } else {
       progress.percent = 0
-      self.planet = targetPlanet
-      player.address[1] = self.planet.id
-      spaceship.address[1] = self.planet.id
+      self.autostarr.planet = targetPlanet
+      player.address[1] = self.autostarr.planet.id
+      spaceship.address[1] = planet.id
       self.exploreSetAlert("alert-success", `Successfully arrived!`, "fa-rocket")
-      explore.jumbotron.image = planet.image
-      explore.jumbotron.title = (targetPlanet === -1) ? `Orbiting The ${targetPlanet.name} Star` : `Orbiting Planet ${planet.name}`
+      explore.jumbotron.image = self.autostarr.planet.image
+      explore.jumbotron.title = (targetPlanet === -1) ? `Orbiting The ${targetPlanet.name} Star` : `Orbiting Planet ${self.autostarr.planet.name}`
       explore.jumbotron.description = targetPlanet.description
       player.orbit = planet.id
       player.starDistance = targetPlanet.starDistance
@@ -360,19 +361,19 @@ autostarr.vue.methods.spaceshipTravelPlanet = function(planetId) {
 }
 
 autostarr.vue.methods.spaceshipRefuel = function(from){
-  if(this.player.ship && this[from].inventory.shipFuelCells.amount && this.spaceship.fuel.amount < this.spaceship.fuel.max) {
+  if(this.autostarr.player.ship && this[from].inventory.shipFuelCells.amount && this.autostarr.spaceship.fuel.amount < this.autostarr.spaceship.fuel.max) {
     this[from].inventory.shipFuelCells.amount--
     this[from].storage.amount--
-    this.spaceship.fuel.amount++
+    this.autostarr.spaceship.fuel.amount++
   }
   console.log("refuel spaceship")
 }
 
 autostarr.vue.methods.spaceshipRefuelAntimatter = function(from) {
-  if(this.player.ship && this[from].inventory.antiMatterFuelCells.amount && this.spaceship.fuel.antimatter.amount < this.spaceship.fuel.antimatter.max) {
+  if(this.autostarr.player.ship && this[from].inventory.antiMatterFuelCells.amount && this.autostarr.spaceship.fuel.antimatter.amount < this.autostarr.spaceship.fuel.antimatter.max) {
     this[from].inventory.antiMatterFuelCells.amount--
     this[from].storage.amount--
-    this.spaceship.fuel.antimatter.amount++
+    this.autostarr.spaceship.fuel.antimatter.amount++
   }
   console.log("antimatter fuel")
 }

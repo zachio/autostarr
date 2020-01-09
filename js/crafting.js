@@ -96,16 +96,16 @@ autostarr.vue.methods.craftingRoverFuelCell = function() {
 }
 
 autostarr.vue.methods.craftingCraft = function(item, ingredient){
-  let player = this.player 
+  let player = this.autostarr.player 
   let craft = this.crafting.recipes[item]
-  if(craft.ingredients[ingredient].amount < craft.ingredients[ingredient].cost && player.inventory[ingredient].amount > 0){
-    player.inventory[ingredient].amount--
+  if(craft.ingredients[ingredient.item].amount < craft.ingredients[ingredient.item].cost && player.inventory[ingredient.item].amount > 0){
+    player.inventory[ingredient.item].amount--
     player.storage.amount--
-    craft.ingredients[ingredient].amount++
+    craft.ingredients[ingredient.item].amount++
   } 
 
-  if(craft.ingredients[ingredient].amount === craft.ingredients[ingredient].cost && !craft.ingredients[ingredient].full) {
-    craft.ingredients[ingredient].full = true
+  if(craft.ingredients[ingredient.item].amount === craft.ingredients[ingredient.item].cost && !craft.ingredients[ingredient.item].full) {
+    craft.ingredients[ingredient.item].full = true
     craft.fullCount++
   }
   //TODO: handle rover crafting

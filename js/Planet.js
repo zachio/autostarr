@@ -1,10 +1,11 @@
 class Planet {
-	constructor(starId, planetId) {
+	constructor(starId, planetId, starsystemName) {
 		this.id = planetId
 		this.address=[starId, planetId]
 		this.seed=starId*10+planetId
 		this.color = this.pickColor()
 		this.name = this.namePlanet()
+    this.starsystemName = starsystemName
 		this.moons = Math.between(0,10,this.seed++)
 		this.size = Math.between(50,100,this.seed++)
     let gap = 10000
@@ -16,7 +17,7 @@ class Planet {
 			message: null
 		},
 		this.title = `The Planet ${this.name}`
-		this.description = `${this.name} is a ${this.color} planet and has ${this.size} areas to explore. It has ${this.moons} moons and is ${this.starDistance} distance units from it's host star.`
+		this.description = `${this.name} is a ${this.color} planet in the The ${this.starsystemName} System and has ${this.size} areas to explore. It has ${this.moons} moons and is ${this.starDistance} distance units from it's host star.`
 		this.areas = {}
     this.icon = "fa-globe"
 		return this

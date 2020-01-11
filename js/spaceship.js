@@ -8,12 +8,12 @@ class SpaceShip {
         amount: 100,
         max: 100,
         antimatter: {
-          max: 100,
+          max: 0,
           amount: 100
         }
       }
       this.storage = {
-        amount: 500,
+        amount: 0,
         max: 1000
       }
       this.inventory = {
@@ -21,13 +21,13 @@ class SpaceShip {
           name: "Carbon",
           item: "carbon",
           icon: "fa-tree",
-          amount: 250
+          amount: 0
         },
         minerals: {
           name: "Minerals",
           item: "minerals",
           icon: "fa-mountain",
-          amount: 250
+          amount: 0
         },
       }
       this.speed = 1
@@ -247,7 +247,7 @@ autostarr.vue.methods.spaceshipTravelStar = function(direction){
   let planet = this.autostarr.starsystem
   let player = this.autostarr.player
   let progress = this.progress
-  if(spaceship.fuel.antimatter.amount >= 50) {
+  if(spaceship.fuel.antimatter.amount >= 10) {
     spaceship.isMoving = true
     let id = starsystem.id + direction
     let star = this.autostarr.stars[id]
@@ -287,7 +287,7 @@ autostarr.vue.methods.spaceshipTravelStar = function(direction){
       explore.jumbotron.title = (self.autostarr.planet.scanned) ? self.planet.name : `Unknown Planet`
       explore.jumbotron.description = (self.autostarr.planet.scanned) ? self.autostarr.planet.description : `Orbitting an unknown planet.`
     }
-    self.progressAnimation(Date.now(), 1000, callback, update)
+    self.progressAnimation(Date.now(), 10000, callback, update)
   } else {
     this.autostarr.planetSetAlert("alert-warning", `Not enough antimatter to travel neighboring star. Use minerals to craft at least 50 antimatter fuel at the star.`, "fa-atom")
   }  

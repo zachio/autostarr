@@ -102,7 +102,7 @@
                       <button class="list-group-item list-group-item-action" @click="$root.spaceshipEnter()" v-if="!$root.autostarr.player.ship && $root.autostarr.spaceship.address[2] === $root.autostarr.player.address[2] && !$root.autostarr.player.isMoving" :disabled="$root.autostarr.player.isMoving || $root.autostarr.player.scanner.scanning || $root.isgameover || $root.busy || $root.autostarr.player.rover"><i class="fas fa-door-open"></i> Board Spacecraft</button>
                       <button class="list-group-item list-group-item-action" :disabled="$root.busy || $root.isGameover" v-for="(rover, index) in autostarr.area.rovers" v-if="!autostarr.player.rover && !autostarr.player.ship && !autostarr.player.isMoving" @click="roverEnter(index)"><i class="fas fa-truck-pickup"></i> Enter {{rover.alias}}</button>
                       <button class="list-group-item list-group-item-action" @click="roverExit()" v-if="$root.autostarr.player.rover && !$root.autostarr.player.isMoving" :disabled="$root.busy || $root.isGameover"><i class="fas fa-truck-pickup"></i> Exit Rover</button>
-                      <button class="list-group-item list-group-item-action" @click="$root.spaceshipScan()" :disabled="$root.autostarr.player.scanner.scanning || $root.isGameover" v-if="$root.autostarr.player.isOrbiting"><i class="fas fa-search"></i> Scan for planets</button>
+                      <button class="list-group-item list-group-item-action" @click="$root.spaceshipScan()" :disabled="$root.autostarr.player.scanner.scanning || $root.isGameover || autostarr.starsystem.scanned" v-if="$root.autostarr.player.isOrbiting"><i class="fas fa-search"></i> Scan for planets</button>
                       <button class="list-group-item list-group-item-action" @click="$root.spaceshipTravelPlanet(autostarr.spaceship.travel.targetPlanet)" v-if="$root.autostarr.player.isOrbiting && autostarr.spaceship.travel.targetPlanet != autostarr.player.address[1]" :disable="autostarr.spaceship.isMoving || $root.isGameover">
                         <i class="fas fa-rocket"></i> Travel <span class="badge badge-warning">{{Math.abs(( autostarr.starsystem.planets[autostarr.spaceship.travel.targetPlanet].starDistance - autostarr.player.starDistance)/1000).toFixed(1)}} <i class="fas fa-gas-pump"></i></span>
                       </button>
@@ -242,7 +242,7 @@
               </div>
             </div>
             
-            <div class="card">
+            <div class="card" v-if="autostarr.starsystem.scanned">
               <h5 class="card-header"><i class="fa fa-globe"></i> Planets</h5>
               <div class="list-group list-group-flush">
                 <button @click="selectAstroObject(vuePlanet.id)" class="list-group-item list-group-item-action" :class="[vuePlanet.id === autostarr.player.address[1] ? 'active' : '']" v-if="vuePlanet.scanned" v-for="vuePlanet in autostarr.starsystem.planets" role="button" type="button" style="cursor: pointer"><i class="fas" :class="vuePlanet.icon"></i> <i class="fas fa-map-marker" v-if="vuePlanet.id == autostarr.player.address[1]"></i> {{vuePlanet.name}} 

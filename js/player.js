@@ -13,7 +13,7 @@ class Player {
       max: 100
     }
     this.storage = {
-      amount: 1,
+      amount: 0,
       max: 100
     }
     this.inventory  = {
@@ -33,7 +33,7 @@ class Player {
         name: "Rover",
         item: "rover",
         icon: "fa-truck-pickup",
-        amount: 1,
+        amount: 0,
         install: "roverInstall"
       }
     }

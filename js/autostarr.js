@@ -196,7 +196,7 @@ var autostarr = {
         this.isGameover = false
         jumboImg.addEventListener("load", function() {
           self.isLoading = false
-          self.exploreSetAlert("alert-danger", `Danger! Power levels are critically low. Find a charging station immediately.`, "fa-bolt")
+//           self.exploreSetAlert("alert-danger", `Danger! Power levels are critically low. Find a charging station immediately.`, "fa-bolt")
           self.autostarr.explore.jumbotron.image = "img/spaceship-landed.jpg"
           self.autostarr.explore.jumbotron.title = "Unknown Area"
           self.autostarr.explore.jumbotron.description = `You awake on an alien planet. It appears your memory was corrupted and you have no record of how you got here. You are only familiar with the spaceship landed on the ground in the area.`
